@@ -1,122 +1,111 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useRef, useState } from "react";
+import Editor from "@monaco-editor/react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const socketRef = useRef<WebSocket | null>(null);
+
+  const [connectionStatus, setConnectionStatus] = useState("Connecting...");
+  const [message, setMessage] = useState("");
+  const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:3000");
+
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      console.log("WebSocket connected");
+      setConnectionStatus("Connected");
+    };
+
+    socket.onmessage = (event) => {
+      console.log("Message from server:", event.data);
+
+      setReceivedMessages((previousMessages) => [
+        ...previousMessages,
+        event.data
+      ]);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket disconnected");
+      setConnectionStatus("Disconnected");
+    };
+
+    socket.onerror = () => {
+      console.log("WebSocket error");
+      setConnectionStatus("Connection error");
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (
+      socketRef.current &&
+      socketRef.current.readyState === WebSocket.OPEN &&
+      message.trim() !== ""
+    ) {
+      socketRef.current.send(message);
+
+      setMessage("");
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <div style={{ height: "100vh", backgroundColor: "#1e1e1e" }}>
+      <div
+        style={{
+          height: "50px",
+          display: "flex",
+          alignItems: "center",
+          padding: "0 20px",
+          color: "white",
+          gap: "20px"
+        }}
+      >
+        <strong>CodeTogether</strong>
+
+        <span>
+          WebSocket: {connectionStatus}
+        </span>
+      </div>
+
+      <div style={{ padding: "10px", color: "white" }}>
+        <input
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          placeholder="Type a message"
+        />
+
+        <button onClick={sendMessage}>
+          Send
         </button>
-      </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div style={{ marginTop: "10px" }}>
+          {receivedMessages.map((msg, index) => (
+            <div key={index}>
+              {msg}
+            </div>
+          ))}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <Editor
+        height="calc(100% - 180px)"
+        defaultLanguage="cpp"
+        defaultValue={`#include <iostream>
+using namespace std;
+
+int main() {
+    return 0;
+}`}
+        theme="vs-dark"
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
