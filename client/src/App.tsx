@@ -7,9 +7,10 @@ function App() {
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [message, setMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
+  const [roomActivity, setRoomActivity] = useState("");
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:3000");
+    const socket = new WebSocket("ws://localhost:3000/?roomId=ABC123");
 
     socketRef.current = socket;
 
@@ -19,13 +20,24 @@ function App() {
     };
 
     socket.onmessage = (event) => {
-      console.log("Message from server:", event.data);
+      try {
+        const data = JSON.parse(event.data);
 
+        if (data.type === "user_joined") {
+          console.log("A new user joined the room");
+          setRoomActivity("🟢 A new user joined the room");
+        }
+
+        if (data.type === "user_left") {
+          console.log("A user left the room");
+          setRoomActivity("🔴 A user left the room");
+      }
+    } catch {
       setReceivedMessages((previousMessages) => [
-        ...previousMessages,
-        event.data
+        ...previousMessages, event.data
       ]);
-    };
+    }
+    };  
 
     socket.onclose = () => {
       console.log("WebSocket disconnected");
@@ -71,6 +83,13 @@ function App() {
         <span>
           WebSocket: {connectionStatus}
         </span>
+      </div>
+
+      <div style={{ padding: "10px 20px", backgroundColor: "#252526",
+        color: "white"
+      }}
+      >
+        {roomActivity}
       </div>
 
       <div style={{ padding: "10px", color: "white" }}>
