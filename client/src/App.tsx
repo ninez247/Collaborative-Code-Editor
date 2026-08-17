@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
 
 function Home() {
-  const [roomId, setRoomId] = useState("");
+  const navigate = useNavigate();
+  const [ roomId ] = useState("");
   const createRoom = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/rooms", {
@@ -12,7 +13,7 @@ function Home() {
 
       const data = await response.json();
 
-      setRoomId(data.roomId);
+      navigate(`/room/${data.roomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
     }
