@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import crypto from "crypto";
+
+function generateRoomId(): string {
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
+}
 
 const app = express();
 const rooms = new Map<string, Set<WebSocket>>();
@@ -13,6 +18,16 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     message: "CodeTogether backend is running"
+  });
+});
+
+app.post("/api/rooms", (req, res) => {
+  const roomId = generateRoomId();
+
+  rooms.set(roomId, new Set());
+
+  res.json({
+    roomId
   });
 });
 

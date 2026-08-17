@@ -1,16 +1,54 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 
-function App() {
+function Home() {
+  const [roomId, setRoomId] = useState("");
+  const createRoom = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/rooms", {
+        method: "POST"
+      });
+
+      const data = await response.json();
+
+      setRoomId(data.roomId);
+    } catch (error) {
+      console.error("Failed to create room:", error);
+    }
+  };
+
+  return (
+    <div>
+      <h1>CodeTogether</h1>
+
+      <button onClick={createRoom}>
+        Create Interview
+      </button>
+
+      {roomId && (
+        <div>
+          Room ID: {roomId}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InterviewRoom() {
   const socketRef = useRef<WebSocket | null>(null);
-
+  const { roomId } = useParams();
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [message, setMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
   const [roomActivity, setRoomActivity] = useState("");
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:3000/?roomId=ABC123");
+    if (!roomId) {
+      return;
+    }
+
+    const socket = new WebSocket(`ws://localhost:3000/?roomId=${roomId}`);
 
     socketRef.current = socket;
 
@@ -52,7 +90,7 @@ function App() {
     return () => {
       socket.close();
     };
-  }, []);
+  }, [roomId]);
 
   const sendMessage = () => {
     if (
@@ -82,6 +120,10 @@ function App() {
 
         <span>
           WebSocket: {connectionStatus}
+        </span>
+
+        <span>
+          Room: {roomId}
         </span>
       </div>
 
@@ -124,6 +166,23 @@ int main() {
         theme="vs-dark"
       />
     </div>
+  );
+}
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={<Home />}
+        />
+
+        <Route
+          path="/room/:roomId"
+          element={<InterviewRoom />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
