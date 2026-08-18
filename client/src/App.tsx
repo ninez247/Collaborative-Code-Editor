@@ -165,6 +165,11 @@ int main() {
     return 0;
 }`}
         theme="vs-dark"
+        onChange={(value) => {
+          if (value !== undefined) {
+            console.log("Code:changed:", value);
+          }
+        }}
       />
     </div>
   );
