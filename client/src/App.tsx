@@ -43,6 +43,12 @@ function InterviewRoom() {
   const [message, setMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
   const [roomActivity, setRoomActivity] = useState("");
+  const [code, setCode] = useState(`#include <iostream>
+using namespace std;
+
+int main() {
+    return 0;
+}`);
 
   useEffect(() => {
     if (!roomId) {
@@ -70,7 +76,13 @@ function InterviewRoom() {
         if (data.type === "user_left") {
           console.log("A user left the room");
           setRoomActivity("🔴 A user left the room");
-      }
+        }
+
+        if (data.type === "code_change") {
+          console.log("Received code:", data.code);
+          setCode(data.code);
+        }
+
     } catch {
       setReceivedMessages((previousMessages) => [
         ...previousMessages, event.data
@@ -158,16 +170,25 @@ function InterviewRoom() {
       <Editor
         height="calc(100% - 180px)"
         defaultLanguage="cpp"
-        defaultValue={`#include <iostream>
-using namespace std;
-
-int main() {
-    return 0;
-}`}
+        value={code}
         theme="vs-dark"
+
         onChange={(value) => {
+          
           if (value !== undefined) {
-            console.log("Code:changed:", value);
+            setCode(value);
+        
+            if (
+            socketRef.current && 
+            socketRef.current.readyState === WebSocket.OPEN
+          ) {
+            socketRef.current.send(
+              JSON.stringify({
+                type: "code_change",
+                code: value
+              })
+            );
+          }
           }
         }}
       />
