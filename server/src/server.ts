@@ -9,7 +9,13 @@ function generateRoomId(): string {
 }
 
 const app = express();
-const rooms = new Map<string, Set<WebSocket>>();
+
+type Room = {
+  clients: Set<WebSocket>;
+  code: string;
+};
+
+const rooms = new Map<string, Room>();
 
 app.use(cors());
 app.use(express.json());
@@ -24,7 +30,15 @@ app.get("/api/health", (req, res) => {
 app.post("/api/rooms", (req, res) => {
   const roomId = generateRoomId();
 
-  rooms.set(roomId, new Set());
+  rooms.set(roomId, {
+    clients: new Set(),
+    code: `#include <iostream>
+    using namespace std;
+    
+    int main() {
+      return 0;
+    }`
+  });
 
   res.json({
     roomId
@@ -42,20 +56,28 @@ wss.on("connection", (socket, request) => {
 
   console.log("User wants to join room:", roomId);
 
-  if(!roomId) {
+  if (!roomId) {
     socket.close();
     return;
   }
 
   if (!rooms.has(roomId)) {
-    rooms.set(roomId, new Set());
+    rooms.set(roomId, {
+      clients: new Set(),
+      code: `#include <iostream>
+using namespace std;
+
+int main() {
+    return 0;
+}`
+  });
   }
 
   const room = rooms.get(roomId)!;
 
-  room.add(socket);
+  room.clients.add(socket);
 
-  room.forEach((client) => {
+  room.clients.forEach((client) => {
     if (client !== socket && client.readyState === WebSocket.OPEN) {
       client.send(
         JSON.stringify({
@@ -70,20 +92,31 @@ wss.on("connection", (socket, request) => {
   socket.send("Welcome to CodeTogether!");
 
   socket.on("message", (message) => {
-  console.log(`Message in room ${roomId}:`, message.toString());
+    console.log(`Message in room ${roomId}:`, message.toString());
 
-  const currentRoom = rooms.get(roomId);
+    const currentRoom = rooms.get(roomId);
 
-  if (!currentRoom) {
-    return;
-  }
-
-  currentRoom.forEach((client) => {
-    if (client !== socket && client.readyState === WebSocket.OPEN) {
-      client.send(message.toString());
+    if (!currentRoom) {
+      return;
     }
+
+    try {
+      const data = JSON.parse(message.toString());
+
+      if (data.type === "code_change") {
+        currentRoom.code = data.code;
+        console.log("Current room code updated.");
+      }
+    } catch {
+      console.log("Received non-JSON message");
+    }
+
+    currentRoom.clients.forEach((client) => {
+      if (client !== socket && client.readyState === WebSocket.OPEN) {
+        client.send(message.toString());
+      }
+    });
   });
-});
 
   socket.on("close", () => {
     const currentRoom = rooms.get(roomId);
@@ -92,11 +125,11 @@ wss.on("connection", (socket, request) => {
       return;
     }
 
-    currentRoom.delete(socket);
+    currentRoom.clients.delete(socket);
 
     console.log(`User left room ${roomId}`);
 
-    currentRoom.forEach((client) => {
+    currentRoom.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(
           JSON.stringify({
@@ -106,7 +139,7 @@ wss.on("connection", (socket, request) => {
       }
     });
 
-    if (currentRoom.size === 0) {
+    if (currentRoom.clients.size === 0) {
       rooms.delete(roomId);
       console.log(`Room ${roomId} deleted`);
     }

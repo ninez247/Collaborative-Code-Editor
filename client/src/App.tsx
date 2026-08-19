@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useNavigate, isRouteErrorResponse } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const [ roomId ] = useState("");
+  const [roomId] = useState("");
   const createRoom = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/rooms", {
@@ -38,6 +38,7 @@ function Home() {
 
 function InterviewRoom() {
   const socketRef = useRef<WebSocket | null>(null);
+  const isRemoteUpdate = useRef(false);
   const { roomId } = useParams();
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [message, setMessage] = useState("");
@@ -80,15 +81,18 @@ int main() {
 
         if (data.type === "code_change") {
           console.log("Received code:", data.code);
+
+          isRemoteUpdate.current = true;
+
           setCode(data.code);
         }
 
-    } catch {
-      setReceivedMessages((previousMessages) => [
-        ...previousMessages, event.data
-      ]);
-    }
-    };  
+      } catch {
+        setReceivedMessages((previousMessages) => [
+          ...previousMessages, event.data
+        ]);
+      }
+    };
 
     socket.onclose = () => {
       console.log("WebSocket disconnected");
@@ -140,7 +144,8 @@ int main() {
         </span>
       </div>
 
-      <div style={{ padding: "10px 20px", backgroundColor: "#252526",
+      <div style={{
+        padding: "10px 20px", backgroundColor: "#252526",
         color: "white"
       }}
       >
@@ -174,21 +179,26 @@ int main() {
         theme="vs-dark"
 
         onChange={(value) => {
-          
+
           if (value !== undefined) {
             setCode(value);
-        
+
+            if (isRemoteUpdate.current) {
+              isRemoteUpdate.current = false;
+              return;
+            }
+
             if (
-            socketRef.current && 
-            socketRef.current.readyState === WebSocket.OPEN
-          ) {
-            socketRef.current.send(
-              JSON.stringify({
-                type: "code_change",
-                code: value
-              })
-            );
-          }
+              socketRef.current &&
+              socketRef.current.readyState === WebSocket.OPEN
+            ) {
+              socketRef.current.send(
+                JSON.stringify({
+                  type: "code_change",
+                  code: value
+                })
+              );
+            }
           }
         }}
       />
