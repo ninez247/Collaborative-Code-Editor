@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate, isRouteErrorResponse } from "react-router-dom";
 
+type Question = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: String;
+};
+
 function Home() {
   const navigate = useNavigate();
   const [roomId] = useState("");
@@ -50,7 +57,9 @@ using namespace std;
 int main() {
     return 0;
 }`);
-
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [selectedQuestion, setSelectedQuestion] = 
+    useState<Question | null>(null);
   useEffect(() => {
     if (!roomId) {
       return;
@@ -87,6 +96,12 @@ int main() {
           setCode(data.code);
         }
 
+        if (data.type === "question_change") {
+          console.log("Received question:", data.question.title);
+
+          setSelectedQuestion(data.question);
+        }
+
       } catch {
         setReceivedMessages((previousMessages) => [
           ...previousMessages, event.data
@@ -108,6 +123,22 @@ int main() {
       socket.close();
     };
   }, [roomId]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response =await fetch("http://localhost:3000/api/questions");
+
+        const data = await response.json();
+
+        setQuestions(data);
+      } catch {
+        console.error("Failed to fetch questions:",Error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   const sendMessage = () => {
     if (
@@ -171,6 +202,56 @@ int main() {
           ))}
         </div>
       </div>
+
+      <div style={{ padding: "10px 20px", color: "white"}}>
+        <h3>Select Interview Question</h3>
+
+        <select 
+          value={selectedQuestion?.id ?? ""}
+          onChange={(event)=> {
+            const question = questions.find(
+              (question) => question.id === event.target.value
+            );
+
+            setSelectedQuestion(question ?? null);
+
+            if (
+              question &&
+              socketRef.current &&
+              socketRef.current.readyState === WebSocket.OPEN
+            ) {
+              socketRef.current.send(
+                JSON.stringify({
+                  type: "question_change",
+                  question
+                })
+              );
+            }
+          }}
+          >
+            <option value="">
+              Select a question
+            </option>
+
+            {questions.map((question) => (
+              <option key={question.id} value={question.id}>
+                {question.title}
+              </option>
+            ))}
+          </select>  
+      </div>
+
+      {selectedQuestion && (
+        <div style={{ marginTop: "15px"}}>
+          <h3>{selectedQuestion.title}</h3>
+
+          <p>{selectedQuestion.description}</p>
+
+          <p>
+            Difficulty: {selectedQuestion.difficulty}
+          </p>
+        </div>
+      )}
 
       <Editor
         height="calc(100% - 180px)"

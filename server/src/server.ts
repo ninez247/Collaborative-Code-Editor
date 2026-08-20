@@ -13,7 +13,39 @@ const app = express();
 type Room = {
   clients: Set<WebSocket>;
   code: string;
+  selectedQuestion: Question | null;
 };
+
+type Question = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+};
+
+const questions: Question[] = [
+  {
+    id: "two-sum",
+    title: "Two Sum",
+    description:
+      "Given an array of integers and a target, return the indices of two numbers that add up to the target.",
+    difficulty: "Easy"
+  },
+  {
+    id: "reverse-string",
+    title: "Reverse String",
+    description:
+      "Write a function that reverses a string.",
+    difficulty: "Easy"
+  },
+  {
+    id: "valid-parentheses",
+    title: "Valid Parentheses",
+    description:
+      "Given a string containing brackets, determine whether the brackets are valid.",
+    difficulty: "Easy"
+  }
+];
 
 const rooms = new Map<string, Room>();
 
@@ -27,6 +59,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.get("/api/questions", (req, res) => {
+  res.json(questions);
+});
+
 app.post("/api/rooms", (req, res) => {
   const roomId = generateRoomId();
 
@@ -37,7 +73,8 @@ app.post("/api/rooms", (req, res) => {
     
     int main() {
       return 0;
-    }`
+    }`,
+    selectedQuestion: null
   });
 
   res.json({
@@ -69,8 +106,9 @@ using namespace std;
 
 int main() {
     return 0;
-}`
-  });
+}`,
+      selectedQuestion: null
+    });
   }
 
   const room = rooms.get(roomId)!;
@@ -113,6 +151,14 @@ int main() {
       if (data.type === "code_change") {
         currentRoom.code = data.code;
         console.log("Current room code updated.");
+      }
+
+      if (data.type === "question_change") {
+        currentRoom.selectedQuestion = data.question;
+        console.log(
+          "Current question updated:",
+          data.question.title
+        );
       }
     } catch {
       console.log("Received non-JSON message");
