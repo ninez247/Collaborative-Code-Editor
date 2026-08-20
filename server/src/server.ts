@@ -77,6 +77,13 @@ int main() {
 
   room.clients.add(socket);
 
+  socket.send(
+    JSON.stringify({
+      type: "code_change",
+      code: room.code
+    })
+  );
+
   room.clients.forEach((client) => {
     if (client !== socket && client.readyState === WebSocket.OPEN) {
       client.send(
