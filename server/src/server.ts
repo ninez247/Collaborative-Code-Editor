@@ -91,7 +91,16 @@ wss.on("connection", (socket, request) => {
 
   const roomId = url.searchParams.get("roomId");
 
-  console.log("User wants to join room:", roomId);
+  const role = url.searchParams.get("role");
+
+  if (role !== "interviewer" && role !== "candidate") {
+    socket.close();
+    return;
+  }
+
+  console.log("User wants to join room:", roomId,
+    "Role:", role
+  );
 
   if (!roomId) {
     socket.close();
@@ -121,7 +130,7 @@ int main() {
       code: room.code
     })
   );
-  
+
   if (room.selectedQuestion) {
     socket.send(
       JSON.stringify({
@@ -163,6 +172,10 @@ int main() {
       }
 
       if (data.type === "question_change") {
+        if (role !== "interviewer") {
+          console.log("Candidate attempted to change the question");
+          return;
+        }
         currentRoom.selectedQuestion = data.question;
         console.log(
           "Current question updated:",

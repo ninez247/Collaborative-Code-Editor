@@ -10,8 +10,9 @@ type Question = {
 };
 
 function Home() {
-  const navigate = useNavigate();
   const [roomId] = useState("");
+  const navigate = useNavigate();
+  const [joinRoomId, setJoinRoomId] = useState("");
   const createRoom = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/rooms", {
@@ -20,11 +21,17 @@ function Home() {
 
       const data = await response.json();
 
-      navigate(`/room/${data.roomId}`);
+      navigate(`/room/${data.roomId}?role=interviewer`);
     } catch (error) {
       console.error("Failed to create room:", error);
     }
   };
+  const joinRoom = () => {
+    if (joinRoomId.trim() === "") {
+      return;
+    }
+    navigate(`/room/${joinRoomId.trim()}?role=candidate`);
+  }
 
   return (
     <div>
@@ -39,6 +46,18 @@ function Home() {
           Room ID: {roomId}
         </div>
       )}
+
+      <div style={{ marginTop: "20px" }}>
+        <input
+          value={joinRoomId}
+          onChange={(event) => setJoinRoomId(event.target.value)}
+          placeholder="Enter Room ID"
+        />
+
+        <button onClick={joinRoom}>
+          Join Interview
+        </button>
+      </div>
     </div>
   );
 }
@@ -47,6 +66,8 @@ function InterviewRoom() {
   const socketRef = useRef<WebSocket | null>(null);
   const isRemoteUpdate = useRef(false);
   const { roomId } = useParams();
+  const searchParams = new URLSearchParams(window.location.search);
+  const role = searchParams.get("role");
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [message, setMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
@@ -65,7 +86,7 @@ int main() {
       return;
     }
 
-    const socket = new WebSocket(`ws://localhost:3000/?roomId=${roomId}`);
+    const socket = new WebSocket(`ws://localhost:3000/?roomId=${roomId}&role=${role}`);
 
     socketRef.current = socket;
 
@@ -122,7 +143,7 @@ int main() {
     return () => {
       socket.close();
     };
-  }, [roomId]);
+  }, [roomId, role]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -173,6 +194,10 @@ int main() {
         <span>
           Room: {roomId}
         </span>
+
+        <span>
+          Role: {role}
+        </span>
       </div>
 
       <div style={{
@@ -204,88 +229,93 @@ int main() {
       </div>
 
       <div style={{ padding: "10px 20px", color: "white" }}>
-        <h3>Select Interview Question</h3>
+        {role === "interviewer" && (
+          <>
+            <h3>Select Interview Question</h3>
 
-        <select
-          value={selectedQuestion?.id ?? ""}
-          onChange={(event) => {
-            const question = questions.find(
-              (question) => question.id === event.target.value
-            );
+            <select
+              value={selectedQuestion?.id ?? ""}
+              onChange={(event) => {
+                const question = questions.find(
+                  (question) => question.id === event.target.value
+                );
 
-            setSelectedQuestion(question ?? null);
+                setSelectedQuestion(question ?? null);
 
-            if (
-              question &&
-              socketRef.current &&
-              socketRef.current.readyState === WebSocket.OPEN
-            ) {
-              socketRef.current.send(
-                JSON.stringify({
-                  type: "question_change",
-                  question
-                })
-              );
+                if (
+                  question &&
+                  socketRef.current &&
+                  socketRef.current.readyState === WebSocket.OPEN
+                ) {
+                  socketRef.current.send(
+                    JSON.stringify({
+                      type: "question_change",
+                      question
+                    })
+                  );
+                }
+              }}
+            >
+              <option value="">
+                Select a question
+              </option>
+
+              {questions.map((question) => (
+                <option key={question.id} value={question.id}>
+                  {question.title}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
+        {selectedQuestion && (
+          <div style={{ marginTop: "15px" }}>
+            <h3>{selectedQuestion.title}</h3>
+
+            <p>{selectedQuestion.description}</p>
+
+            <p>
+              Difficulty: {selectedQuestion.difficulty}
+            </p>
+          </div>
+        )}
+
+        <Editor
+          height="60vh"
+          defaultLanguage="cpp"
+          value={code}
+          theme="vs-dark"
+
+          onChange={(value) => {
+
+            if (value !== undefined) {
+              setCode(value);
+
+              if (isRemoteUpdate.current) {
+                isRemoteUpdate.current = false;
+                return;
+              }
+
+              if (
+                socketRef.current &&
+                socketRef.current.readyState === WebSocket.OPEN
+              ) {
+                socketRef.current.send(
+                  JSON.stringify({
+                    type: "code_change",
+                    code: value
+                  })
+                );
+              }
             }
           }}
-        >
-          <option value="">
-            Select a question
-          </option>
-
-          {questions.map((question) => (
-            <option key={question.id} value={question.id}>
-              {question.title}
-            </option>
-          ))}
-        </select>
+        />
       </div>
-
-      {selectedQuestion && (
-        <div style={{ marginTop: "15px" }}>
-          <h3>{selectedQuestion.title}</h3>
-
-          <p>{selectedQuestion.description}</p>
-
-          <p>
-            Difficulty: {selectedQuestion.difficulty}
-          </p>
-        </div>
-      )}
-
-      <Editor
-        height="calc(100% - 180px)"
-        defaultLanguage="cpp"
-        value={code}
-        theme="vs-dark"
-
-        onChange={(value) => {
-
-          if (value !== undefined) {
-            setCode(value);
-
-            if (isRemoteUpdate.current) {
-              isRemoteUpdate.current = false;
-              return;
-            }
-
-            if (
-              socketRef.current &&
-              socketRef.current.readyState === WebSocket.OPEN
-            ) {
-              socketRef.current.send(
-                JSON.stringify({
-                  type: "code_change",
-                  code: value
-                })
-              );
-            }
-          }
-        }}
-      />
     </div>
   );
 }
+
 function App() {
   return (
     <BrowserRouter>
