@@ -121,6 +121,15 @@ int main() {
       code: room.code
     })
   );
+  
+  if (room.selectedQuestion) {
+    socket.send(
+      JSON.stringify({
+        type: "question_change",
+        question: room.selectedQuestion
+      })
+    );
+  }
 
   room.clients.forEach((client) => {
     if (client !== socket && client.readyState === WebSocket.OPEN) {

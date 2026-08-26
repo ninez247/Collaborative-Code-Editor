@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { BrowserRouter, Routes, Route, useParams, useNavigate, isRouteErrorResponse } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
 
 type Question = {
   id: string;
@@ -58,7 +58,7 @@ int main() {
     return 0;
 }`);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [selectedQuestion, setSelectedQuestion] = 
+  const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
   useEffect(() => {
     if (!roomId) {
@@ -127,13 +127,13 @@ int main() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response =await fetch("http://localhost:3000/api/questions");
+        const response = await fetch("http://localhost:3000/api/questions");
 
         const data = await response.json();
 
         setQuestions(data);
       } catch {
-        console.error("Failed to fetch questions:",Error);
+        console.error("Failed to fetch questions:", Error);
       }
     };
 
@@ -203,12 +203,12 @@ int main() {
         </div>
       </div>
 
-      <div style={{ padding: "10px 20px", color: "white"}}>
+      <div style={{ padding: "10px 20px", color: "white" }}>
         <h3>Select Interview Question</h3>
 
-        <select 
+        <select
           value={selectedQuestion?.id ?? ""}
-          onChange={(event)=> {
+          onChange={(event) => {
             const question = questions.find(
               (question) => question.id === event.target.value
             );
@@ -228,21 +228,21 @@ int main() {
               );
             }
           }}
-          >
-            <option value="">
-              Select a question
-            </option>
+        >
+          <option value="">
+            Select a question
+          </option>
 
-            {questions.map((question) => (
-              <option key={question.id} value={question.id}>
-                {question.title}
-              </option>
-            ))}
-          </select>  
+          {questions.map((question) => (
+            <option key={question.id} value={question.id}>
+              {question.title}
+            </option>
+          ))}
+        </select>
       </div>
 
       {selectedQuestion && (
-        <div style={{ marginTop: "15px"}}>
+        <div style={{ marginTop: "15px" }}>
           <h3>{selectedQuestion.title}</h3>
 
           <p>{selectedQuestion.description}</p>
