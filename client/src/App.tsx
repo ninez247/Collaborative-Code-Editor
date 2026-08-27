@@ -72,6 +72,7 @@ function InterviewRoom() {
   const [message, setMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
   const [roomActivity, setRoomActivity] = useState("");
+  const [language, setLanguage] = useState("cpp");
   const [code, setCode] = useState(`#include <iostream>
 using namespace std;
 
@@ -123,6 +124,11 @@ int main() {
           setSelectedQuestion(data.question);
         }
 
+        if (data.type === "language_change") {
+          console.log("Received language:", data.language);
+
+          setLanguage(data.language);
+        }
       } catch {
         setReceivedMessages((previousMessages) => [
           ...previousMessages, event.data
@@ -228,6 +234,33 @@ int main() {
         </div>
       </div>
 
+      <h3>Select Language</h3>  
+      <select 
+        value={language}
+        onChange={(event) => {
+          const newLanguge = event.target.value;
+
+          setLanguage(newLanguge);
+
+          if (
+            socketRef.current &&
+            socketRef.current.readyState === WebSocket.OPEN
+          ) {
+            socketRef.current.send(
+              JSON.stringify({
+                type: "language_change",
+                language: newLanguge
+              })
+            );
+          }
+        }}  
+      >
+        <option value="cpp">C++</option>
+        <option value="python">Python</option>
+        <option value="java">Java</option>
+        <option value="javascript">JavaScript</option>
+      </select>
+        
       <div style={{ padding: "10px 20px", color: "white" }}>
         {role === "interviewer" && (
           <>
@@ -283,7 +316,7 @@ int main() {
 
         <Editor
           height="60vh"
-          defaultLanguage="cpp"
+          language={language}
           value={code}
           theme="vs-dark"
 

@@ -10,10 +10,20 @@ function generateRoomId(): string {
 
 const app = express();
 
+const DEFAULT_CODE = `#include <iostream>
+using namespace std;
+
+int main() {
+    return 0;
+}`;
+
+type Language = "cpp" | "python" | "java" | "javascript";
+
 type Room = {
   clients: Set<WebSocket>;
   code: string;
   selectedQuestion: Question | null;
+  language: Language;
 };
 
 type Question = {
@@ -68,13 +78,9 @@ app.post("/api/rooms", (req, res) => {
 
   rooms.set(roomId, {
     clients: new Set(),
-    code: `#include <iostream>
-    using namespace std;
-    
-    int main() {
-      return 0;
-    }`,
-    selectedQuestion: null
+    code: DEFAULT_CODE,
+    selectedQuestion: null,
+    language: "cpp"
   });
 
   res.json({
@@ -110,13 +116,9 @@ wss.on("connection", (socket, request) => {
   if (!rooms.has(roomId)) {
     rooms.set(roomId, {
       clients: new Set(),
-      code: `#include <iostream>
-using namespace std;
-
-int main() {
-    return 0;
-}`,
-      selectedQuestion: null
+      code: DEFAULT_CODE,
+      selectedQuestion: null,
+      language: "cpp"
     });
   }
 
@@ -139,6 +141,13 @@ int main() {
       })
     );
   }
+
+  socket.send(
+    JSON.stringify({
+      type: "language_change",
+      language: room.language
+    })
+  );
 
   room.clients.forEach((client) => {
     if (client !== socket && client.readyState === WebSocket.OPEN) {
@@ -181,6 +190,41 @@ int main() {
           "Current question updated:",
           data.question.title
         );
+      }
+
+      if (data.type === "language_change") {
+        if (role !== "interviewer") {
+          console.log("Candidate attempted to change the language");
+          return;
+        }
+        
+        if (
+          data.language !== "cpp" &&
+          data.language !== "python" &&
+          data.language !== "java" &&
+          data.language !== "javascript"
+        ) {
+          console.log("Invalid language:", data.language);
+          return;
+        }
+
+        currentRoom.language = data.language;
+
+        console.log(
+          "Current language updated:",
+          data.language
+        );
+
+        currentRoom.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                type: "language_change",
+                language: currentRoom.language
+              })
+            );
+          }
+        });
       }
     } catch {
       console.log("Received non-JSON message");
