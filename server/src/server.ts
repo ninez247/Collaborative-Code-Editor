@@ -93,6 +93,19 @@ app.post("/api/rooms", (req, res) => {
   });
 });
 
+app.post("/api/run", (req, res) => {
+  const { code, language } = req.body;
+
+  console.log("Received code to run:", code);
+  console.log("Received language:", language);
+
+  res.json({
+    message: "Code received successfully",
+    code,
+    language
+  });
+});
+
 const server = createServer(app);
 
 const wss = new WebSocketServer({ server });

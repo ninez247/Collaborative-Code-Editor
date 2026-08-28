@@ -86,6 +86,7 @@ using namespace std;
 int main() {
     return 0;
 }`);
+  const [output, setOutput] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
@@ -190,6 +191,28 @@ int main() {
     }
   };
 
+  const runCode = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code, language
+        })
+      });
+
+      const data = await response.json();
+
+      console.log("Run result:", data);
+
+      setOutput(data.message);
+    } catch (error) {
+      console.error("Failed to run code:", error);
+    }
+  };
+
   return (
     <div style={{ height: "100vh", backgroundColor: "#1e1e1e" }}>
       <div
@@ -269,7 +292,7 @@ int main() {
                 }
               }}
             >
-              {languages.map((languageOption)=> (
+              {languages.map((languageOption) => (
                 <option
                   key={languageOption.value}
                   value={languageOption.value}
@@ -357,6 +380,21 @@ int main() {
           }
           }
         />
+        <button onClick={runCode}>
+          Run Code
+        </button>
+        <div
+          style={{
+            marginTop: "10px",
+            padding: "10px",
+            backgroundColor: "#1e1e1e",
+            color: "white",
+            minHeight: "100px"
+          }}
+        >
+          <h3>Output</h3>
+          <pre>{output}</pre>
+        </div>
       </div>
     </div>
   );
