@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
 
+const languages = [
+  { value: "cpp", label: "C++" },
+  { value: "python", label: "Python" },
+  { value: "java", label: "Java" },
+  { value: "javascript", label: "JavaScript" }
+];
+
 type Question = {
   id: string;
   title: string;
@@ -128,6 +135,10 @@ int main() {
           console.log("Received language:", data.language);
 
           setLanguage(data.language);
+
+          isRemoteUpdate.current = true;
+
+          setCode(data.code);
         }
       } catch {
         setReceivedMessages((previousMessages) => [
@@ -234,36 +245,40 @@ int main() {
         </div>
       </div>
 
-      <h3>Select Language</h3>  
-      <select 
-        value={language}
-        onChange={(event) => {
-          const newLanguge = event.target.value;
-
-          setLanguage(newLanguge);
-
-          if (
-            socketRef.current &&
-            socketRef.current.readyState === WebSocket.OPEN
-          ) {
-            socketRef.current.send(
-              JSON.stringify({
-                type: "language_change",
-                language: newLanguge
-              })
-            );
-          }
-        }}  
-      >
-        <option value="cpp">C++</option>
-        <option value="python">Python</option>
-        <option value="java">Java</option>
-        <option value="javascript">JavaScript</option>
-      </select>
-        
       <div style={{ padding: "10px 20px", color: "white" }}>
         {role === "interviewer" && (
           <>
+            <h3>Select Language</h3>
+            <select
+              value={language}
+              onChange={(event) => {
+                const newLanguage = event.target.value;
+
+                setLanguage(newLanguage);
+
+                if (
+                  socketRef.current &&
+                  socketRef.current.readyState === WebSocket.OPEN
+                ) {
+                  socketRef.current.send(
+                    JSON.stringify({
+                      type: "language_change",
+                      language: newLanguage
+                    })
+                  );
+                }
+              }}
+            >
+              {languages.map((languageOption)=> (
+                <option
+                  key={languageOption.value}
+                  value={languageOption.value}
+                >
+                  {languageOption.label}
+                </option>
+              ))}
+            </select>
+
             <h3>Select Interview Question</h3>
 
             <select
@@ -321,28 +336,26 @@ int main() {
           theme="vs-dark"
 
           onChange={(value) => {
-
-            if (value !== undefined) {
-              setCode(value);
-
-              if (isRemoteUpdate.current) {
-                isRemoteUpdate.current = false;
-                return;
-              }
-
-              if (
-                socketRef.current &&
-                socketRef.current.readyState === WebSocket.OPEN
-              ) {
-                socketRef.current.send(
-                  JSON.stringify({
-                    type: "code_change",
-                    code: value
-                  })
-                );
-              }
+            if (isRemoteUpdate.current) {
+              isRemoteUpdate.current = false;
+              return;
             }
-          }}
+
+            setCode(value ?? "");
+
+            if (
+              socketRef.current &&
+              socketRef.current.readyState === WebSocket.OPEN
+            ) {
+              socketRef.current.send(
+                JSON.stringify({
+                  type: "code_change",
+                  code: value ?? ""
+                })
+              );
+            }
+          }
+          }
         />
       </div>
     </div>

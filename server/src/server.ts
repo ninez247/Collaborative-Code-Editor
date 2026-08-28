@@ -21,7 +21,7 @@ type Language = "cpp" | "python" | "java" | "javascript";
 
 type Room = {
   clients: Set<WebSocket>;
-  code: string;
+  code: Record<Language, string>;
   selectedQuestion: Question | null;
   language: Language;
 };
@@ -78,7 +78,12 @@ app.post("/api/rooms", (req, res) => {
 
   rooms.set(roomId, {
     clients: new Set(),
-    code: DEFAULT_CODE,
+    code: {
+      cpp: DEFAULT_CODE,
+      python: "",
+      java: "",
+      javascript: ""
+    },
     selectedQuestion: null,
     language: "cpp"
   });
@@ -116,7 +121,12 @@ wss.on("connection", (socket, request) => {
   if (!rooms.has(roomId)) {
     rooms.set(roomId, {
       clients: new Set(),
-      code: DEFAULT_CODE,
+      code: {
+        cpp: DEFAULT_CODE,
+        python: "",
+        java: "",
+        javascript: ""
+      },
       selectedQuestion: null,
       language: "cpp"
     });
@@ -129,7 +139,7 @@ wss.on("connection", (socket, request) => {
   socket.send(
     JSON.stringify({
       type: "code_change",
-      code: room.code
+      code: room.code[room.language]
     })
   );
 
@@ -145,7 +155,8 @@ wss.on("connection", (socket, request) => {
   socket.send(
     JSON.stringify({
       type: "language_change",
-      language: room.language
+      language: room.language,
+      code: room.code[room.language]
     })
   );
 
@@ -176,7 +187,7 @@ wss.on("connection", (socket, request) => {
       const data = JSON.parse(message.toString());
 
       if (data.type === "code_change") {
-        currentRoom.code = data.code;
+        currentRoom.code[currentRoom.language] = data.code;
         console.log("Current room code updated.");
       }
 
@@ -197,7 +208,7 @@ wss.on("connection", (socket, request) => {
           console.log("Candidate attempted to change the language");
           return;
         }
-        
+
         if (
           data.language !== "cpp" &&
           data.language !== "python" &&
@@ -220,11 +231,14 @@ wss.on("connection", (socket, request) => {
             client.send(
               JSON.stringify({
                 type: "language_change",
-                language: currentRoom.language
+                language: currentRoom.language,
+                code: currentRoom.code[currentRoom.language]
               })
             );
           }
         });
+
+        return;
       }
     } catch {
       console.log("Received non-JSON message");
