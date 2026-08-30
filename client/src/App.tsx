@@ -87,6 +87,7 @@ int main() {
     return 0;
 }`);
   const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
@@ -192,7 +193,15 @@ int main() {
   };
 
   const runCode = async () => {
+
+    if (isRunning) {
+      return;
+    }
+
     try {
+      setIsRunning(true);
+      setOutput("Running...");
+      
       const response = await fetch("http://localhost:3000/api/run", {
         method: "POST",
         headers: {
@@ -207,9 +216,16 @@ int main() {
 
       console.log("Run result:", data);
 
-      setOutput(data.message);
+      if (data.status === "Accepted") {
+        setOutput(data.output || "Program finished successfully.");
+      } else {
+        setOutput(data.output || data.error || "");
+      }
     } catch (error) {
       console.error("Failed to run code:", error);
+      setOutput("Failed to connect to the code execution server.");
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -380,8 +396,8 @@ int main() {
           }
           }
         />
-        <button onClick={runCode}>
-          Run Code
+        <button onClick={runCode} disabled={isRunning}>
+          {isRunning ? "Running..." : "Run Code"}
         </button>
         <div
           style={{

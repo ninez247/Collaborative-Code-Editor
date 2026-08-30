@@ -3,6 +3,8 @@ import cors from "cors";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
+import "dotenv/config";
+import { runCode } from "./services/codeExecution";
 
 function generateRoomId(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -18,6 +20,13 @@ int main() {
 }`;
 
 type Language = "cpp" | "python" | "java" | "javascript";
+
+const languageIds: Record<Language, number> = {
+  cpp: 54,
+  python: 71,
+  java: 62,
+  javascript: 63
+};
 
 type Room = {
   clients: Set<WebSocket>;
@@ -93,17 +102,50 @@ app.post("/api/rooms", (req, res) => {
   });
 });
 
-app.post("/api/run", (req, res) => {
-  const { code, language } = req.body;
+app.post("/api/run", async (req, res) => {
+  try {
+    const { code, language, stdin } = req.body;
 
-  console.log("Received code to run:", code);
-  console.log("Received language:", language);
+    const languageId = languageIds[language as Language];
 
-  res.json({
-    message: "Code received successfully",
-    code,
-    language
-  });
+    if (!languageId) {
+      return res.status(400).json({
+        status: "error",
+        output: "",
+        error: "Unsupported Language"
+      });
+    }
+
+    console.log("Received code to run:", code);
+    console.log("Received language:", language);
+    console.log("Language ID:", languageId);
+
+    const result = await runCode({
+      sourceCode: code,
+      languageId,
+      stdin
+    });
+
+    console.log("Execution result:", result);
+
+    res.json({
+      status: result.status,
+      output: result.stdout ?? "",
+      error:
+        result.stderr ??
+        result.compileOutput ??
+        null
+    });
+
+  } catch (error) {
+    console.error("Code execution failed:", error);
+
+    res.status(500).json({
+      status: "error",
+      output: "",
+      error: "Failed to execute code"
+    });
+  }
 });
 
 const server = createServer(app);
