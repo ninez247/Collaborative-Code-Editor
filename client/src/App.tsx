@@ -87,6 +87,7 @@ int main() {
     return 0;
 }`);
   const [output, setOutput] = useState("");
+  const [input, setInput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
@@ -208,7 +209,7 @@ int main() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          code, language
+          code, language, stdin: input
         })
       });
 
@@ -408,8 +409,31 @@ int main() {
             minHeight: "100px"
           }}
         >
+          <h3>Input</h3>
+
+          <textarea
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            placeholder="Enter program input here..."
+            style={{
+              width: "100%",
+              minHeight: "80px",
+              backgroundColor: "#252526",
+              color: "white",
+              padding: "10px",
+              boxSizing: "border-box"
+            }}
+          />
+
           <h3>Output</h3>
-          <pre>{output}</pre>
+          <pre 
+            style={{
+              minHeight: "100px",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {output}
+          </pre>
         </div>
       </div>
     </div>
