@@ -89,6 +89,7 @@ int main() {
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(45 * 60);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
@@ -96,7 +97,6 @@ int main() {
     if (!roomId) {
       return;
     }
-
     const socket = new WebSocket(`ws://localhost:3000/?roomId=${roomId}&role=${role}`);
 
     socketRef.current = socket;
@@ -164,6 +164,24 @@ int main() {
       socket.close();
     };
   }, [roomId, role]);
+
+  useEffect(() => {
+    if(timeLeft<=0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((previousTime) => previousTime -1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const minutes = Math.floor(timeLeft/60);
+  const seconds = timeLeft%60;
+
+  const formattedTime = 
+    `${minutes.toString().padStart(2, "0")}:` +
+    `${seconds.toString().padStart(2, "0")}`;
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -257,6 +275,16 @@ int main() {
 
         <span>
           Role: {role}
+        </span>
+
+        <span
+        style={{
+          marginLeft: "auto",
+          fontWeight: "bold",
+          fontSize: "18px"
+        }}
+        >
+          ⏱ {formattedTime}
         </span>
       </div>
 
