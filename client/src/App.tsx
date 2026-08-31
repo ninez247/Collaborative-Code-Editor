@@ -202,7 +202,7 @@ int main() {
     try {
       setIsRunning(true);
       setOutput("Running...");
-      
+
       const response = await fetch("http://localhost:3000/api/run", {
         method: "POST",
         headers: {
@@ -231,7 +231,10 @@ int main() {
   };
 
   return (
-    <div style={{ height: "100vh", backgroundColor: "#1e1e1e" }}>
+    <div style={{
+      height: "100vh", backgroundColor: "#1e1e1e",
+      overflow: "auto"
+    }}>
       <div
         style={{
           height: "50px",
@@ -357,59 +360,105 @@ int main() {
           </>
         )}
 
-        {selectedQuestion && (
-          <div style={{ marginTop: "15px" }}>
-            <h3>{selectedQuestion.title}</h3>
-
-            <p>{selectedQuestion.description}</p>
-
-            <p>
-              Difficulty: {selectedQuestion.difficulty}
-            </p>
-          </div>
-        )}
-
-        <Editor
-          height="60vh"
-          language={language}
-          value={code}
-          theme="vs-dark"
-
-          onChange={(value) => {
-            if (isRemoteUpdate.current) {
-              isRemoteUpdate.current = false;
-              return;
-            }
-
-            setCode(value ?? "");
-
-            if (
-              socketRef.current &&
-              socketRef.current.readyState === WebSocket.OPEN
-            ) {
-              socketRef.current.send(
-                JSON.stringify({
-                  type: "code_change",
-                  code: value ?? ""
-                })
-              );
-            }
-          }
-          }
-        />
-        <button onClick={runCode} disabled={isRunning}>
-          {isRunning ? "Running..." : "Run Code"}
-        </button>
         <div
           style={{
-            marginTop: "10px",
+            display: "flex",
+            gap: "20px",
+            padding: "20px",
+            width: "100%",
+            boxSizing: "border-box",
+            alignItems: "stretch"
+          }}
+        >
+          {/* Question Panel */}
+          <div
+            style={{
+              flex: "0 0 30%",
+              height: "fit-content",
+              backgroundColor: "#252526",
+              color: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              boxSizing: "border-box",
+              overflowY: "auto",
+              minWidth: 0
+            }}
+          >
+            {selectedQuestion ? (
+              <>
+                <h2>{selectedQuestion.title}</h2>
+
+                <p>{selectedQuestion.description}</p>
+
+                <p>
+                  <strong>Difficulty:</strong>{" "}
+                  {selectedQuestion.difficulty}
+                </p>
+              </>
+            ) : (
+              <p>Select an interview question to begin.</p>
+            )}
+          </div>
+
+          {/* Code Editor */}
+          <div
+            style={{
+              flex: "1",
+              minWidth: 0,
+              height: "460px",
+              borderRadius: "8px",
+              overflow: "auto"
+            }}
+          >
+            <Editor
+              height="460px"
+              language={language}
+              value={code}
+              theme="vs-dark"
+              onChange={(value) => {
+                if (isRemoteUpdate.current) {
+                  isRemoteUpdate.current = false;
+                  return;
+                }
+
+                setCode(value ?? "");
+
+                if (
+                  socketRef.current &&
+                  socketRef.current.readyState === WebSocket.OPEN
+                ) {
+                  socketRef.current.send(
+                    JSON.stringify({
+                      type: "code_change",
+                      code: value ?? ""
+                    })
+                  );
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: "20px",
+            marginLeft: "20px",
+            marginRight: "20px",
             padding: "10px",
             backgroundColor: "#1e1e1e",
             color: "white",
-            minHeight: "100px"
+            borderRadius: "8px",
+            boxSizing: "border-box"
           }}
         >
-          <h3>Input</h3>
+          <h3
+            style={{
+              marginTop: 0,
+              marginBottom: "10px"
+            }}
+          >
+            Input
+          </h3>
 
           <textarea
             value={input}
@@ -417,22 +466,58 @@ int main() {
             placeholder="Enter program input here..."
             style={{
               width: "100%",
-              minHeight: "80px",
-              backgroundColor: "#252526",
+              height: "100px",
+              backgroundColor: "#1e1e1e",
               color: "white",
               padding: "10px",
-              boxSizing: "border-box"
+              border: "1px solid #444",
+              borderRadius: "5px",
+              boxSizing: "border-box",
+              resize: "vertical"
             }}
           />
 
-          <h3>Output</h3>
-          <pre 
+          <div
             style={{
-              minHeight: "100px",
-              whiteSpace: "pre-wrap",
+              display: "flex",
+              justifyContent: "center",
+              margin: "20px 0"
             }}
           >
-            {output}
+            <button
+              onClick={runCode}
+              disabled={isRunning}
+              style={{
+                padding: "10px 25px",
+                fontSize: "15px",
+                cursor: isRunning ? "not-allowed" : "pointer"
+              }}
+            >
+              {isRunning ? "Running..." : "▶ Run Code"}
+            </button>
+          </div>
+
+          <h3
+            style={{
+              marginBottom: "10px"
+            }}
+          >
+            Output
+          </h3>
+
+          <pre
+            style={{
+              minHeight: "100px",
+              margin: 0,
+              padding: "10px",
+              backgroundColor: "1e1e1e",
+              border: "1px, solid #444",
+              borderRadius: "5px",
+              whiteSpace: "pre-wrap",
+              overflow: "auto"
+            }}
+          >
+            {output || "Program output will appear here..."}
           </pre>
         </div>
       </div>
