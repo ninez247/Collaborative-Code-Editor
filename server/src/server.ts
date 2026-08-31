@@ -5,6 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import "dotenv/config";
 import { runCode } from "./services/codeExecution";
+import { timerify } from "perf_hooks";
 
 function generateRoomId(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -33,6 +34,7 @@ type Room = {
   code: Record<Language, string>;
   selectedQuestion: Question | null;
   language: Language;
+  timerStartedAt: number | null;
 };
 
 type Question = {
@@ -94,7 +96,8 @@ app.post("/api/rooms", (req, res) => {
       javascript: ""
     },
     selectedQuestion: null,
-    language: "cpp"
+    language: "cpp",
+    timerStartedAt: null
   });
 
   res.json({
@@ -183,11 +186,21 @@ wss.on("connection", (socket, request) => {
         javascript: ""
       },
       selectedQuestion: null,
-      language: "cpp"
+      language: "cpp",
+      timerStartedAt: null
     });
   }
 
   const room = rooms.get(roomId)!;
+
+  if (room.timerStartedAt !== null) {
+    socket.send(
+      JSON.stringify({
+        type: "timer_sync",
+        timerStartedAt: room.timerStartedAt
+      })
+    );
+  }
 
   room.clients.add(socket);
 
@@ -256,6 +269,32 @@ wss.on("connection", (socket, request) => {
           "Current question updated:",
           data.question.title
         );
+      }
+
+      if (data.type === "start_interview") {
+        if (role !== "interviewer") {
+          console.log("Candidate attempted to start the interview");
+          return;
+        }
+
+        currentRoom.timerStartedAt = Date.now();
+
+        console.log(
+          `Interview started in room ${roomId}`
+        );
+
+        currentRoom.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                type: "timer_sync",
+                timerStartedAt: currentRoom.timerStartedAt
+              })
+            );
+          }
+        });
+
+        return;
       }
 
       if (data.type === "language_change") {

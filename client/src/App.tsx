@@ -90,6 +90,7 @@ int main() {
   const [input, setInput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45 * 60);
+  const [timerStartedAt, setTimeStartedAt] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
@@ -109,6 +110,10 @@ int main() {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data.type === "timer_sync") {
+          setTimeStartedAt(data.timerStartedAt);
+        }
 
         if (data.type === "user_joined") {
           console.log("A new user joined the room");
@@ -166,20 +171,27 @@ int main() {
   }, [roomId, role]);
 
   useEffect(() => {
-    if(timeLeft<=0) {
+    if (timerStartedAt === null) {
       return;
     }
 
     const timer = setInterval(() => {
-      setTimeLeft((previousTime) => previousTime -1);
+      const elapsed = Math.floor(
+        (Date.now() - timerStartedAt) / 1000
+      );
+
+      const remaining = Math.max(45 * 60 - elapsed, 0);
+
+      setTimeLeft(remaining);
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timerStartedAt]);
 
-  const minutes = Math.floor(timeLeft/60);
-  const seconds = timeLeft%60;
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
 
-  const formattedTime = 
+  const formattedTime =
     `${minutes.toString().padStart(2, "0")}:` +
     `${seconds.toString().padStart(2, "0")}`;
 
@@ -278,11 +290,11 @@ int main() {
         </span>
 
         <span
-        style={{
-          marginLeft: "auto",
-          fontWeight: "bold",
-          fontSize: "18px"
-        }}
+          style={{
+            marginLeft: "auto",
+            fontWeight: "bold",
+            fontSize: "18px"
+          }}
         >
           ⏱ {formattedTime}
         </span>
@@ -319,6 +331,26 @@ int main() {
       <div style={{ padding: "10px 20px", color: "white" }}>
         {role === "interviewer" && (
           <>
+            <button
+              onClick={() => {
+                if (
+                  socketRef.current &&
+                  socketRef.current.readyState === WebSocket.OPEN
+                ) {
+                  socketRef.current.send(
+                    JSON.stringify({
+                      type: "start_interview"
+                    })
+                  );
+                }
+              }}
+              disabled={timerStartedAt !== null}
+            >
+              {timerStartedAt !== null
+                ? "Interview Started"
+                : "Start Interview"}
+            </button>
+
             <h3>Select Language</h3>
             <select
               value={language}
