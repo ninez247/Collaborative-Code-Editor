@@ -35,6 +35,7 @@ type Room = {
   selectedQuestion: Question | null;
   language: Language;
   timerStartedAt: number | null;
+  interviewEnded: boolean;
 };
 
 type Question = {
@@ -97,7 +98,8 @@ app.post("/api/rooms", (req, res) => {
     },
     selectedQuestion: null,
     language: "cpp",
-    timerStartedAt: null
+    timerStartedAt: null,
+    interviewEnded: false
   });
 
   res.json({
@@ -187,7 +189,8 @@ wss.on("connection", (socket, request) => {
       },
       selectedQuestion: null,
       language: "cpp",
-      timerStartedAt: null
+      timerStartedAt: null,
+      interviewEnded: false
     });
   }
 
@@ -294,6 +297,29 @@ wss.on("connection", (socket, request) => {
           }
         });
 
+        return;
+      }
+
+      if (data.type === "end_interview") {
+        if (role !== "interviewer") {
+          console.log("Candidate attempted to end the interview");
+          return;
+        }
+
+        currentRoom.interviewEnded = true;
+
+        console.log(`Interviwe ended in room ${roomId}`);
+
+        currentRoom.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                type: "interview_ended"
+              })
+            );
+          }
+        });
+        
         return;
       }
 

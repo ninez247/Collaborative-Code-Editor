@@ -115,6 +115,11 @@ int main() {
           setTimeStartedAt(data.timerStartedAt);
         }
 
+        if (data.type === "interview_ended") {
+          setTimeStartedAt(null);
+          setTimeLeft(0);
+        }
+
         if (data.type === "user_joined") {
           console.log("A new user joined the room");
           setRoomActivity("🟢 A new user joined the room");
@@ -349,6 +354,22 @@ int main() {
               {timerStartedAt !== null
                 ? "Interview Started"
                 : "Start Interview"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (socketRef.current && 
+                  socketRef.current.readyState === WebSocket.OPEN) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "end_interview"
+                      })
+                    );
+                  }
+              }}
+              disabled={timerStartedAt === null}
+            >
+              End Interview
             </button>
 
             <h3>Select Language</h3>
