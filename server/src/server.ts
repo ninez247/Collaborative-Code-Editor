@@ -319,7 +319,7 @@ wss.on("connection", (socket, request) => {
             );
           }
         });
-        
+
         return;
       }
 

@@ -89,7 +89,7 @@ int main() {
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(45 * 60);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [timerStartedAt, setTimeStartedAt] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
@@ -113,11 +113,16 @@ int main() {
 
         if (data.type === "timer_sync") {
           setTimeStartedAt(data.timerStartedAt);
+
+          setElapsedTime(
+            Math.floor(
+              (Date.now() - data.timerStartedAt) / 1000
+            )
+          );
         }
 
         if (data.type === "interview_ended") {
           setTimeStartedAt(null);
-          setTimeLeft(0);
         }
 
         if (data.type === "user_joined") {
@@ -185,16 +190,14 @@ int main() {
         (Date.now() - timerStartedAt) / 1000
       );
 
-      const remaining = Math.max(45 * 60 - elapsed, 0);
-
-      setTimeLeft(remaining);
+      setElapsedTime(elapsed);
     }, 1000);
 
     return () => clearInterval(timer);
   }, [timerStartedAt]);
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+  const minutes = Math.floor(elapsedTime / 60);
+  const seconds = elapsedTime % 60;
 
   const formattedTime =
     `${minutes.toString().padStart(2, "0")}:` +
@@ -358,14 +361,14 @@ int main() {
 
             <button
               onClick={() => {
-                if (socketRef.current && 
+                if (socketRef.current &&
                   socketRef.current.readyState === WebSocket.OPEN) {
-                    socketRef.current.send(
-                      JSON.stringify({
-                        type: "end_interview"
-                      })
-                    );
-                  }
+                  socketRef.current.send(
+                    JSON.stringify({
+                      type: "end_interview"
+                    })
+                  );
+                }
               }}
               disabled={timerStartedAt === null}
             >
