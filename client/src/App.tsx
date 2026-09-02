@@ -537,6 +537,11 @@ int main() {
                   <strong>Difficulty:</strong>{" "}
                   {selectedQuestion.difficulty}
                 </p>
+
+                <p>
+                  <strong>Category:</strong>{" "}
+                  {selectedQuestion.category}
+                </p>
               </>
             ) : (
               <p>Select an interview question to begin.</p>
