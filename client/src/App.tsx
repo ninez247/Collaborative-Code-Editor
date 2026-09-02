@@ -18,9 +18,9 @@ type Question = {
 };
 
 function Home() {
-  const [roomId] = useState("");
   const navigate = useNavigate();
   const [joinRoomId, setJoinRoomId] = useState("");
+
   const createRoom = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/rooms", {
@@ -34,6 +34,7 @@ function Home() {
       console.error("Failed to create room:", error);
     }
   };
+
   const joinRoom = () => {
     if (joinRoomId.trim() === "") {
       return;
@@ -42,20 +43,29 @@ function Home() {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "30px"
+      }}
+    >
       <h1>CodeTogether</h1>
 
-      <button onClick={createRoom}>
-        Create Interview
-      </button>
+      <div>
+        <h2>Create an Interview</h2>
 
-      {roomId && (
-        <div>
-          Room ID: {roomId}
-        </div>
-      )}
+        <button onClick={createRoom}>
+          Create Interview
+        </button>
+      </div>
 
-      <div style={{ marginTop: "20px" }}>
+      <div>
+        <h2>Join an Interview</h2>
+
         <input
           value={joinRoomId}
           onChange={(event) => setJoinRoomId(event.target.value)}
@@ -74,6 +84,7 @@ function InterviewRoom() {
   const socketRef = useRef<WebSocket | null>(null);
   const isRemoteUpdate = useRef(false);
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const role = searchParams.get("role");
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
@@ -175,6 +186,13 @@ int main() {
 
           setCode(data.code);
         }
+
+        if (data.type === "room_error") {
+          alert(data.message);
+          navigate("/");
+          return;
+        }
+
       } catch {
         setReceivedMessages((previousMessages) => [
           ...previousMessages, event.data

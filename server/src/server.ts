@@ -155,6 +155,18 @@ wss.on("connection", (socket, request) => {
   }
 
   if (!rooms.has(roomId)) {
+    if (role === "candidate") {
+      socket.send(
+        JSON.stringify({
+          type: "room_error",
+          message: "Room does not exist"
+        })
+      );
+
+      socket.close();
+      return;
+    }
+
     rooms.set(roomId, {
       clients: new Set(),
       code: {
@@ -367,11 +379,6 @@ wss.on("connection", (socket, request) => {
         );
       }
     });
-
-    if (currentRoom.clients.size === 0) {
-      rooms.delete(roomId);
-      console.log(`Room ${roomId} deleted`);
-    }
   });
 });
 
