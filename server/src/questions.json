@@ -1,0 +1,712 @@
+[
+  {
+    "id": "two-sum",
+    "title": "Two Sum",
+    "description": "Given an array of integers and a target, return the indices of two numbers that add up to the target.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "contains-duplicate",
+    "title": "Contains Duplicate",
+    "description": "Determine whether an array contains any duplicate values.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "valid-anagram",
+    "title": "Valid Anagram",
+    "description": "Determine whether two strings are anagrams of each other.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "group-anagrams",
+    "title": "Group Anagrams",
+    "description": "Group strings that are anagrams of each other.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "top-k-frequent",
+    "title": "Top K Frequent Elements",
+    "description": "Return the k most frequent elements in an array.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "product-except-self",
+    "title": "Product of Array Except Self",
+    "description": "Return an array where each element is the product of all other elements.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "valid-sudoku",
+    "title": "Valid Sudoku",
+    "description": "Determine whether a partially filled Sudoku board is valid.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "longest-consecutive-sequence",
+    "title": "Longest Consecutive Sequence",
+    "description": "Find the length of the longest consecutive sequence in an unsorted array.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "majority-element",
+    "title": "Majority Element",
+    "description": "Find the element that appears more than half the time in an array.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "missing-number",
+    "title": "Missing Number",
+    "description": "Given numbers from 0 to n with one missing, find the missing number.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "single-number",
+    "title": "Single Number",
+    "description": "Find the element that appears exactly once when every other element appears twice.",
+    "difficulty": "Easy",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "subarray-sum-equals-k",
+    "title": "Subarray Sum Equals K",
+    "description": "Count the number of continuous subarrays whose sum equals k.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "sort-colors",
+    "title": "Sort Colors",
+    "description": "Sort an array containing 0, 1, and 2 in-place.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "maximum-product-subarray",
+    "title": "Maximum Product Subarray",
+    "description": "Find the contiguous subarray with the largest product.",
+    "difficulty": "Medium",
+    "category": "Arrays & Hashing"
+  },
+  {
+    "id": "first-missing-positive",
+    "title": "First Missing Positive",
+    "description": "Find the smallest missing positive integer in an unsorted array.",
+    "difficulty": "Hard",
+    "category": "Arrays & Hashing"
+  },
+
+  {
+    "id": "reverse-string",
+    "title": "Reverse String",
+    "description": "Reverse a string in-place.",
+    "difficulty": "Easy",
+    "category": "Strings"
+  },
+  {
+    "id": "valid-palindrome",
+    "title": "Valid Palindrome",
+    "description": "Determine whether a string is a palindrome after ignoring non-alphanumeric characters.",
+    "difficulty": "Easy",
+    "category": "Strings"
+  },
+  {
+    "id": "reverse-words",
+    "title": "Reverse Words in a String",
+    "description": "Reverse the order of words in a string while removing unnecessary spaces.",
+    "difficulty": "Medium",
+    "category": "Strings"
+  },
+  {
+    "id": "longest-palindromic-substring",
+    "title": "Longest Palindromic Substring",
+    "description": "Find the longest palindromic substring in a given string.",
+    "difficulty": "Medium",
+    "category": "Strings"
+  },
+  {
+    "id": "palindromic-substrings",
+    "title": "Palindromic Substrings",
+    "description": "Count how many substrings of a string are palindromes.",
+    "difficulty": "Medium",
+    "category": "Strings"
+  },
+  {
+    "id": "string-compression",
+    "title": "String Compression",
+    "description": "Compress consecutive repeating characters using character counts.",
+    "difficulty": "Medium",
+    "category": "Strings"
+  },
+  {
+    "id": "implement-strstr",
+    "title": "Implement String Search",
+    "description": "Find the first occurrence of a pattern string inside another string.",
+    "difficulty": "Easy",
+    "category": "Strings"
+  },
+  {
+    "id": "longest-common-prefix",
+    "title": "Longest Common Prefix",
+    "description": "Find the longest common prefix shared by all strings in an array.",
+    "difficulty": "Easy",
+    "category": "Strings"
+  },
+  {
+    "id": "atoi",
+    "title": "String to Integer",
+    "description": "Convert a string into a 32-bit signed integer while handling whitespace and invalid characters.",
+    "difficulty": "Medium",
+    "category": "Strings"
+  },
+  {
+    "id": "minimum-window-substring",
+    "title": "Minimum Window Substring",
+    "description": "Find the smallest substring containing all characters of another string.",
+    "difficulty": "Hard",
+    "category": "Strings"
+  },
+
+  {
+    "id": "three-sum",
+    "title": "3Sum",
+    "description": "Find all unique triplets in an array that sum to zero.",
+    "difficulty": "Medium",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "two-sum-ii",
+    "title": "Two Sum II",
+    "description": "Find two numbers in a sorted array that add up to a target.",
+    "difficulty": "Medium",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "container-most-water",
+    "title": "Container With Most Water",
+    "description": "Find two lines that form a container holding the maximum amount of water.",
+    "difficulty": "Medium",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "move-zeroes",
+    "title": "Move Zeroes",
+    "description": "Move all zeroes to the end of an array while maintaining the relative order of other elements.",
+    "difficulty": "Easy",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "remove-duplicates-sorted",
+    "title": "Remove Duplicates from Sorted Array",
+    "description": "Remove duplicates from a sorted array in-place and return the new length.",
+    "difficulty": "Easy",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "four-sum",
+    "title": "4Sum",
+    "description": "Find all unique quadruplets that sum to a given target.",
+    "difficulty": "Medium",
+    "category": "Two Pointers"
+  },
+  {
+    "id": "trapping-rain-water",
+    "title": "Trapping Rain Water",
+    "description": "Calculate how much rainwater can be trapped between elevation bars.",
+    "difficulty": "Hard",
+    "category": "Two Pointers"
+  },
+
+  {
+    "id": "best-time-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "description": "Find the maximum profit from buying and selling a stock once.",
+    "difficulty": "Easy",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "longest-substring",
+    "title": "Longest Substring Without Repeating Characters",
+    "description": "Find the length of the longest substring without repeating characters.",
+    "difficulty": "Medium",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "longest-repeating-character",
+    "title": "Longest Repeating Character Replacement",
+    "description": "Find the longest substring that can be made of one repeated character after at most k replacements.",
+    "difficulty": "Medium",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "permutation-in-string",
+    "title": "Permutation in String",
+    "description": "Determine whether one string contains a permutation of another string.",
+    "difficulty": "Medium",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "find-all-anagrams",
+    "title": "Find All Anagrams in a String",
+    "description": "Find all starting positions of anagrams of a pattern within a string.",
+    "difficulty": "Medium",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "maximum-average-subarray",
+    "title": "Maximum Average Subarray",
+    "description": "Find the contiguous subarray of length k with the maximum average.",
+    "difficulty": "Easy",
+    "category": "Sliding Window"
+  },
+  {
+    "id": "sliding-window-maximum",
+    "title": "Sliding Window Maximum",
+    "description": "Find the maximum value in every sliding window of size k.",
+    "difficulty": "Hard",
+    "category": "Sliding Window"
+  },
+
+  {
+    "id": "valid-parentheses",
+    "title": "Valid Parentheses",
+    "description": "Determine whether brackets in a string are correctly matched and nested.",
+    "difficulty": "Easy",
+    "category": "Stack"
+  },
+  {
+    "id": "min-stack",
+    "title": "Min Stack",
+    "description": "Design a stack supporting push, pop, top, and retrieving the minimum value in constant time.",
+    "difficulty": "Medium",
+    "category": "Stack"
+  },
+  {
+    "id": "evaluate-rpn",
+    "title": "Evaluate Reverse Polish Notation",
+    "description": "Evaluate an arithmetic expression written in Reverse Polish Notation.",
+    "difficulty": "Medium",
+    "category": "Stack"
+  },
+  {
+    "id": "daily-temperatures",
+    "title": "Daily Temperatures",
+    "description": "For each day, find how many days must pass before a warmer temperature occurs.",
+    "difficulty": "Medium",
+    "category": "Stack"
+  },
+  {
+    "id": "car-fleet",
+    "title": "Car Fleet",
+    "description": "Determine how many car fleets will arrive at a destination given positions and speeds.",
+    "difficulty": "Medium",
+    "category": "Stack"
+  },
+  {
+    "id": "largest-rectangle",
+    "title": "Largest Rectangle in Histogram",
+    "description": "Find the largest rectangle that can be formed in a histogram.",
+    "difficulty": "Hard",
+    "category": "Stack"
+  },
+  {
+    "id": "basic-calculator",
+    "title": "Basic Calculator",
+    "description": "Evaluate an arithmetic expression containing integers, plus, minus, and parentheses.",
+    "difficulty": "Hard",
+    "category": "Stack"
+  },
+
+  {
+    "id": "binary-search",
+    "title": "Binary Search",
+    "description": "Find the index of a target in a sorted array or return -1.",
+    "difficulty": "Easy",
+    "category": "Binary Search"
+  },
+  {
+    "id": "search-rotated-array",
+    "title": "Search in Rotated Sorted Array",
+    "description": "Search for a target in a rotated sorted array.",
+    "difficulty": "Medium",
+    "category": "Binary Search"
+  },
+  {
+    "id": "find-min-rotated",
+    "title": "Find Minimum in Rotated Sorted Array",
+    "description": "Find the minimum value in a rotated sorted array.",
+    "difficulty": "Medium",
+    "category": "Binary Search"
+  },
+  {
+    "id": "search-2d-matrix",
+    "title": "Search a 2D Matrix",
+    "description": "Search for a target in a matrix with sorted rows and columns.",
+    "difficulty": "Medium",
+    "category": "Binary Search"
+  },
+  {
+    "id": "koko-eating-bananas",
+    "title": "Koko Eating Bananas",
+    "description": "Find the minimum eating speed needed to finish all bananas within a given number of hours.",
+    "difficulty": "Medium",
+    "category": "Binary Search"
+  },
+  {
+    "id": "time-based-key-value",
+    "title": "Time Based Key-Value Store",
+    "description": "Design a key-value store that retrieves values based on timestamps.",
+    "difficulty": "Medium",
+    "category": "Binary Search"
+  },
+  {
+    "id": "median-two-sorted-arrays",
+    "title": "Median of Two Sorted Arrays",
+    "description": "Find the median of two sorted arrays in logarithmic time.",
+    "difficulty": "Hard",
+    "category": "Binary Search"
+  },
+
+  {
+    "id": "reverse-linked-list",
+    "title": "Reverse Linked List",
+    "description": "Reverse a singly linked list.",
+    "difficulty": "Easy",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "merge-two-sorted-lists",
+    "title": "Merge Two Sorted Lists",
+    "description": "Merge two sorted linked lists into one sorted linked list.",
+    "difficulty": "Easy",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "linked-list-cycle",
+    "title": "Linked List Cycle",
+    "description": "Determine whether a linked list contains a cycle.",
+    "difficulty": "Easy",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "remove-nth-node",
+    "title": "Remove Nth Node From End",
+    "description": "Remove the nth node from the end of a linked list.",
+    "difficulty": "Medium",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "reorder-list",
+    "title": "Reorder List",
+    "description": "Reorder a linked list by alternating nodes from the beginning and end.",
+    "difficulty": "Medium",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "add-two-numbers",
+    "title": "Add Two Numbers",
+    "description": "Add two numbers represented by linked lists.",
+    "difficulty": "Medium",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "copy-random-list",
+    "title": "Copy List With Random Pointer",
+    "description": "Create a deep copy of a linked list where each node has a random pointer.",
+    "difficulty": "Medium",
+    "category": "Linked Lists"
+  },
+  {
+    "id": "merge-k-sorted-lists",
+    "title": "Merge K Sorted Lists",
+    "description": "Merge k sorted linked lists into one sorted linked list.",
+    "difficulty": "Hard",
+    "category": "Linked Lists"
+  },
+
+  {
+    "id": "invert-binary-tree",
+    "title": "Invert Binary Tree",
+    "description": "Invert a binary tree by swapping the left and right children of every node.",
+    "difficulty": "Easy",
+    "category": "Trees"
+  },
+  {
+    "id": "maximum-depth-tree",
+    "title": "Maximum Depth of Binary Tree",
+    "description": "Find the maximum depth of a binary tree.",
+    "difficulty": "Easy",
+    "category": "Trees"
+  },
+  {
+    "id": "same-tree",
+    "title": "Same Tree",
+    "description": "Determine whether two binary trees are structurally identical with equal node values.",
+    "difficulty": "Easy",
+    "category": "Trees"
+  },
+  {
+    "id": "subtree-another-tree",
+    "title": "Subtree of Another Tree",
+    "description": "Determine whether one binary tree is a subtree of another.",
+    "difficulty": "Easy",
+    "category": "Trees"
+  },
+  {
+    "id": "level-order-traversal",
+    "title": "Binary Tree Level Order Traversal",
+    "description": "Return the values of a binary tree level by level.",
+    "difficulty": "Medium",
+    "category": "Trees"
+  },
+  {
+    "id": "validate-bst",
+    "title": "Validate Binary Search Tree",
+    "description": "Determine whether a binary tree satisfies the binary search tree property.",
+    "difficulty": "Medium",
+    "category": "Trees"
+  },
+  {
+    "id": "kth-smallest-bst",
+    "title": "Kth Smallest Element in a BST",
+    "description": "Find the kth smallest value in a binary search tree.",
+    "difficulty": "Medium",
+    "category": "Trees"
+  },
+  {
+    "id": "lowest-common-ancestor",
+    "title": "Lowest Common Ancestor of a BST",
+    "description": "Find the lowest common ancestor of two nodes in a binary search tree.",
+    "difficulty": "Medium",
+    "category": "Trees"
+  },
+  {
+    "id": "serialize-tree",
+    "title": "Serialize and Deserialize Binary Tree",
+    "description": "Design methods to serialize a binary tree into a string and reconstruct it.",
+    "difficulty": "Hard",
+    "category": "Trees"
+  },
+  {
+    "id": "binary-tree-diameter",
+    "title": "Diameter of Binary Tree",
+    "description": "Find the length of the longest path between any two nodes in a binary tree.",
+    "difficulty": "Easy",
+    "category": "Trees"
+  },
+
+  {
+    "id": "number-of-islands",
+    "title": "Number of Islands",
+    "description": "Count the number of connected islands in a 2D grid.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "clone-graph",
+    "title": "Clone Graph",
+    "description": "Create a deep copy of an undirected graph.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "course-schedule",
+    "title": "Course Schedule",
+    "description": "Determine whether all courses can be completed given prerequisite relationships.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "course-schedule-ii",
+    "title": "Course Schedule II",
+    "description": "Return an ordering of courses that satisfies all prerequisite relationships.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "rotting-oranges",
+    "title": "Rotting Oranges",
+    "description": "Determine how long it takes for all reachable fresh oranges to become rotten.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "pacific-atlantic",
+    "title": "Pacific Atlantic Water Flow",
+    "description": "Find cells from which water can flow to both the Pacific and Atlantic oceans.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "word-ladder",
+    "title": "Word Ladder",
+    "description": "Find the shortest transformation sequence from one word to another.",
+    "difficulty": "Hard",
+    "category": "Graphs"
+  },
+  {
+    "id": "network-delay",
+    "title": "Network Delay Time",
+    "description": "Find the time required for a signal to reach all nodes in a weighted directed graph.",
+    "difficulty": "Medium",
+    "category": "Graphs"
+  },
+  {
+    "id": "reconstruct-itinerary",
+    "title": "Reconstruct Itinerary",
+    "description": "Reconstruct a travel itinerary using all given tickets exactly once.",
+    "difficulty": "Hard",
+    "category": "Graphs"
+  },
+  {
+    "id": "alien-dictionary",
+    "title": "Alien Dictionary",
+    "description": "Derive the ordering of characters from a sorted list of words in an unknown language.",
+    "difficulty": "Hard",
+    "category": "Graphs"
+  },
+
+  {
+    "id": "climbing-stairs",
+    "title": "Climbing Stairs",
+    "description": "Count the number of distinct ways to reach the top when taking one or two steps at a time.",
+    "difficulty": "Easy",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "house-robber",
+    "title": "House Robber",
+    "description": "Find the maximum amount of money that can be robbed without robbing adjacent houses.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "house-robber-ii",
+    "title": "House Robber II",
+    "description": "Solve the house robber problem when the houses are arranged in a circle.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "coin-change",
+    "title": "Coin Change",
+    "description": "Find the minimum number of coins needed to make a target amount.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "longest-increasing-subsequence",
+    "title": "Longest Increasing Subsequence",
+    "description": "Find the length of the longest strictly increasing subsequence.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "partition-equal-subset",
+    "title": "Partition Equal Subset Sum",
+    "description": "Determine whether an array can be divided into two subsets with equal sums.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "unique-paths",
+    "title": "Unique Paths",
+    "description": "Count the number of paths from the top-left to bottom-right of a grid.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "decode-ways",
+    "title": "Decode Ways",
+    "description": "Count the number of ways to decode a string of digits into letters.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "word-break",
+    "title": "Word Break",
+    "description": "Determine whether a string can be segmented into dictionary words.",
+    "difficulty": "Medium",
+    "category": "Dynamic Programming"
+  },
+  {
+    "id": "edit-distance",
+    "title": "Edit Distance",
+    "description": "Find the minimum number of insertions, deletions, and replacements needed to transform one string into another.",
+    "difficulty": "Hard",
+    "category": "Dynamic Programming"
+  },
+
+  {
+    "id": "lru-cache",
+    "title": "LRU Cache",
+    "description": "Design a cache that evicts the least recently used item when capacity is exceeded.",
+    "difficulty": "Medium",
+    "category": "Design"
+  },
+  {
+    "id": "min-heap",
+    "title": "Implement Min Heap",
+    "description": "Implement a min heap supporting insertion, removal, and retrieving the minimum element.",
+    "difficulty": "Medium",
+    "category": "Design"
+  },
+  {
+    "id": "trie",
+    "title": "Implement Trie",
+    "description": "Implement a prefix tree supporting insertion, search, and prefix queries.",
+    "difficulty": "Medium",
+    "category": "Design"
+  },
+  {
+    "id": "design-hashmap",
+    "title": "Design HashMap",
+    "description": "Implement a hash map supporting insertion, retrieval, and deletion without using a built-in map.",
+    "difficulty": "Easy",
+    "category": "Design"
+  },
+  {
+    "id": "design-hashset",
+    "title": "Design HashSet",
+    "description": "Implement a hash set supporting adding, removing, and checking elements.",
+    "difficulty": "Easy",
+    "category": "Design"
+  },
+  {
+    "id": "randomized-set",
+    "title": "Insert Delete GetRandom O(1)",
+    "description": "Design a data structure supporting insertion, deletion, and random retrieval in average constant time.",
+    "difficulty": "Medium",
+    "category": "Design"
+  },
+  {
+    "id": "median-data-stream",
+    "title": "Find Median from Data Stream",
+    "description": "Design a structure that continuously receives numbers and returns the current median.",
+    "difficulty": "Hard",
+    "category": "Design"
+  },
+  {
+    "id": "design-twitter",
+    "title": "Design Twitter",
+    "description": "Design a simplified social media system supporting posting tweets, following users, and retrieving a news feed.",
+    "difficulty": "Medium",
+    "category": "Design"
+  },
+  {
+    "id": "file-system",
+    "title": "Design File System",
+    "description": "Design an in-memory file system supporting directory creation, file creation, reading, and listing.",
+    "difficulty": "Hard",
+    "category": "Design"
+  }
+]

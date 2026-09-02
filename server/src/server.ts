@@ -5,7 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import "dotenv/config";
 import { runCode } from "./services/codeExecution";
-import { timerify } from "perf_hooks";
+import questions from "./questions.json";
 
 function generateRoomId(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -44,30 +44,6 @@ type Question = {
   description: string;
   difficulty: string;
 };
-
-const questions: Question[] = [
-  {
-    id: "two-sum",
-    title: "Two Sum",
-    description:
-      "Given an array of integers and a target, return the indices of two numbers that add up to the target.",
-    difficulty: "Easy"
-  },
-  {
-    id: "reverse-string",
-    title: "Reverse String",
-    description:
-      "Write a function that reverses a string.",
-    difficulty: "Easy"
-  },
-  {
-    id: "valid-parentheses",
-    title: "Valid Parentheses",
-    description:
-      "Given a string containing brackets, determine whether the brackets are valid.",
-    difficulty: "Easy"
-  }
-];
 
 const rooms = new Map<string, Room>();
 

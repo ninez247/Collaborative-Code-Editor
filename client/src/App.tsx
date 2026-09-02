@@ -13,7 +13,8 @@ type Question = {
   id: string;
   title: string;
   description: string;
-  difficulty: String;
+  difficulty: string;
+  category: string;
 };
 
 function Home() {
@@ -94,6 +95,22 @@ int main() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
+  const [difficultyFilter, setDifficultyFilter] = useState("All");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const categories = [
+    "All",
+    ...Array.from(
+      new Set(questions.map((question) => question.category))
+    )
+  ];
+
+  const difficulties = [
+    "All",
+    ...Array.from(
+      new Set(questions.map((question) => question.difficulty))
+    )
+  ];
+
   useEffect(() => {
     if (!roomId) {
       return;
@@ -218,6 +235,18 @@ int main() {
 
     fetchQuestions();
   }, []);
+
+  const filteredQuestions = questions.filter((question) => {
+    const matchesCategory =
+      categoryFilter === "All" ||
+      question.category === categoryFilter;
+
+    const matchesDifficulty =
+      difficultyFilter === "All" ||
+      question.difficulty === difficultyFilter;
+
+    return matchesCategory && matchesDifficulty;
+  });
 
   const sendMessage = () => {
     if (
@@ -406,6 +435,36 @@ int main() {
               ))}
             </select>
 
+            <h3>Filter by Category</h3>
+
+            <select
+              value={categoryFilter}
+              onChange={(event) => {
+                setCategoryFilter(event.target.value);
+              }}
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            <h3>Filter by Difficulty</h3>
+
+            <select
+              value={difficultyFilter}
+              onChange={(event) =>
+                setDifficultyFilter(event.target.value)
+              }
+            >
+              {difficulties.map((difficulty) => (
+                <option key={difficulty} value={difficulty}>
+                  {difficulty}
+                </option>
+              ))}
+            </select>
+
             <h3>Select Interview Question</h3>
 
             <select
@@ -431,11 +490,11 @@ int main() {
                 }
               }}
             >
-              <option value="">
+              <option value="" hidden>
                 Select a question
               </option>
 
-              {questions.map((question) => (
+              {filteredQuestions.map((question) => (
                 <option key={question.id} value={question.id}>
                   {question.title}
                 </option>
