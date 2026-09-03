@@ -382,23 +382,55 @@ int main() {
         {roomActivity}
       </div>
 
-      <div style={{ padding: "10px", color: "white" }}>
-        <input
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder="Type a message"
-        />
+      <div
+        style={{
+          margin: "20px",
+          padding: "15px",
+          backgroundColor: "#252526",
+          color: "white",
+          borderRadius: "8px"
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>
+          Chat
+        </h3>
 
-        <button onClick={sendMessage}>
-          Send
-        </button>
-
-        <div style={{ marginTop: "10px" }}>
+        <div
+          style={{
+            height: "150px",
+            overflowY: "auto",
+            marginBottom: "10px",
+            padding: "10px",
+            backgroundColor: "#1e1e1e",
+            borderRadius: "5px"
+          }}
+        >
           {receivedMessages.map((msg, index) => (
-            <div key={index}>
+            <div key={index} style={{ marginBottom: "8px" }}>
               <strong>{msg.sender}:</strong> {msg.message}
             </div>
           ))}
+        </div>
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          <input
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                sendMessage();
+              }
+            }}
+            placeholder="Type a message"
+            style={{
+              flex: 1,
+              padding: "8px"
+            }}
+          />
+
+          <button onClick={sendMessage}>
+            Send
+          </button>
         </div>
       </div>
 
