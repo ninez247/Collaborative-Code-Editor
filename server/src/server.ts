@@ -250,6 +250,22 @@ wss.on("connection", (socket, request) => {
         console.log("Current room code updated.");
       }
 
+      if (data.type === "chat_message") {
+        currentRoom.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                type: "chat_message",
+                message: data.message,
+                sender: data.sender
+              })
+            );
+          }
+        });
+
+        return;
+      }
+
       if (data.type === "question_change") {
         if (role !== "interviewer") {
           console.log("Candidate attempted to change the question");

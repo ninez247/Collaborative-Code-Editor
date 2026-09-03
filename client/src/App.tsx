@@ -17,6 +17,11 @@ type Question = {
   category: string;
 };
 
+type ChatMessage = {
+  message: string;
+  sender: string;
+};
+
 function Home() {
   const navigate = useNavigate();
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -89,7 +94,7 @@ function InterviewRoom() {
   const role = searchParams.get("role");
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [message, setMessage] = useState("");
-  const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
+  const [receivedMessages, setReceivedMessages] = useState<ChatMessage[]>([]);
   const [roomActivity, setRoomActivity] = useState("");
   const [language, setLanguage] = useState("cpp");
   const [code, setCode] = useState(`#include <iostream>
@@ -187,6 +192,16 @@ int main() {
           setCode(data.code);
         }
 
+        if (data.type === "chat_message") {
+          setReceivedMessages((previousMessages) => [
+            ...previousMessages,
+            {
+              message: data.message,
+              sender: data.sender
+            }
+          ]);
+        }
+
         if (data.type === "room_error") {
           alert(data.message);
           navigate("/");
@@ -194,9 +209,7 @@ int main() {
         }
 
       } catch {
-        setReceivedMessages((previousMessages) => [
-          ...previousMessages, event.data
-        ]);
+        console.error("Invalid WebSocket message:", event.data);
       }
     };
 
@@ -272,7 +285,13 @@ int main() {
       socketRef.current.readyState === WebSocket.OPEN &&
       message.trim() !== ""
     ) {
-      socketRef.current.send(message);
+      socketRef.current.send(
+        JSON.stringify({
+          type: "chat_message",
+          message: message.trim(),
+          sender: role
+        })
+      );
 
       setMessage("");
     }
@@ -377,7 +396,7 @@ int main() {
         <div style={{ marginTop: "10px" }}>
           {receivedMessages.map((msg, index) => (
             <div key={index}>
-              {msg}
+              <strong>{msg.sender}:</strong> {msg.message}
             </div>
           ))}
         </div>
@@ -676,8 +695,8 @@ int main() {
               minHeight: "100px",
               margin: 0,
               padding: "10px",
-              backgroundColor: "1e1e1e",
-              border: "1px, solid #444",
+              backgroundColor: "#1e1e1e",
+              border: "1px solid #444",
               borderRadius: "5px",
               whiteSpace: "pre-wrap",
               overflow: "auto"
