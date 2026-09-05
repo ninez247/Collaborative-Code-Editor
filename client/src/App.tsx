@@ -103,6 +103,7 @@ using namespace std;
 int main() {
     return 0;
 }`);
+  const [copyNotification, setCopyNotification] = useState(false);
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -357,6 +358,21 @@ int main() {
 
         <span>
           Room: {roomId}
+          <button
+            onClick={() => {
+              if (roomId) {
+                navigator.clipboard.writeText(roomId);
+                setCopyNotification(true);
+
+                setTimeout(() => {
+                  setCopyNotification(false);
+                }, 2000);
+              }
+            }}
+            style={{ marginLeft: "8px" }}
+          >
+            Copy
+          </button>
         </span>
 
         <span>
@@ -381,6 +397,18 @@ int main() {
       >
         {roomActivity}
       </div>
+
+      {copyNotification && (
+        <div
+          style={{
+            padding: "8px 20px",
+            backgroundColor: "#252526",
+            color: "white"
+          }}
+        >
+          Room ID copied!
+        </div>
+      )}
 
       <div
         style={{
