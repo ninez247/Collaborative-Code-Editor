@@ -103,6 +103,7 @@ using namespace std;
 int main() {
     return 0;
 }`);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [copyNotification, setCopyNotification] = useState(false);
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
@@ -340,14 +341,51 @@ int main() {
       height: "100vh", backgroundColor: "#1e1e1e",
       overflow: "auto"
     }}>
+      <style>
+        {`
+    .interview-workspace {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      width: 100%;
+      box-sizing: border-box;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .interview-workspace {
+        flex-direction: column;
+      }
+
+      .interview-question,
+      .interview-editor,
+      .interview-chat {
+        flex: none !important;
+        width: 100% !important;
+      }
+
+      .interview-question {
+        height: fit-content !important;
+      }
+
+      .interview-editor,
+      .interview-chat {
+        height: 460px !important;
+      }
+    }
+  `}
+      </style>
       <div
         style={{
-          height: "50px",
+          height: "60px",
           display: "flex",
           alignItems: "center",
           padding: "0 20px",
+          backgroundColor: "#252526",
           color: "white",
-          gap: "20px"
+          gap: "24px",
+          borderBottom: "1px solid #3a3a3a",
+          boxSizing: "border-box"
         }}
       >
         <strong>CodeTogether</strong>
@@ -356,7 +394,14 @@ int main() {
           WebSocket: {connectionStatus}
         </span>
 
-        <span>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            whiteSpace: "nowrap"
+          }}  
+        >
           Room: {roomId}
           <button
             onClick={() => {
@@ -369,7 +414,7 @@ int main() {
                 }, 2000);
               }
             }}
-            style={{ marginLeft: "8px" }}
+            style={{ flexShrink: 0 }}
           >
             Copy
           </button>
@@ -410,197 +455,173 @@ int main() {
         </div>
       )}
 
-      <div
-        style={{
-          margin: "20px",
-          padding: "15px",
-          backgroundColor: "#252526",
-          color: "white",
-          borderRadius: "8px"
-        }}
+      <div style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        padding: "10px 20px"
+      }}
       >
-        <h3 style={{ marginTop: 0 }}>
-          Chat
-        </h3>
-
-        <div
-          style={{
-            height: "150px",
-            overflowY: "auto",
-            marginBottom: "10px",
-            padding: "10px",
-            backgroundColor: "#1e1e1e",
-            borderRadius: "5px"
-          }}
-        >
-          {receivedMessages.map((msg, index) => (
-            <div key={index} style={{ marginBottom: "8px" }}>
-              <strong>{msg.sender}:</strong> {msg.message}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <input
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                sendMessage();
-              }
-            }}
-            placeholder="Type a message"
-            style={{
-              flex: 1,
-              padding: "8px"
-            }}
-          />
-
-          <button onClick={sendMessage}>
-            Send
-          </button>
-        </div>
+        <button onClick={() => setIsChatOpen(!isChatOpen)}>
+          {isChatOpen ? "Close Chat" : "Open Chat"}
+        </button>
       </div>
 
       <div style={{ padding: "10px 20px", color: "white" }}>
         {role === "interviewer" && (
-          <>
-            <button
-              onClick={() => {
-                if (
-                  socketRef.current &&
-                  socketRef.current.readyState === WebSocket.OPEN
-                ) {
-                  socketRef.current.send(
-                    JSON.stringify({
-                      type: "start_interview"
-                    })
-                  );
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "20px",
+              flexWrap: "wrap"
+            }}
+          >
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                onClick={() => {
+                  if (
+                    socketRef.current &&
+                    socketRef.current.readyState === WebSocket.OPEN
+                  ) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "start_interview"
+                      })
+                    );
+                  }
+                }}
+                disabled={timerStartedAt !== null}
+              >
+                {timerStartedAt !== null
+                  ? "Interview Started"
+                  : "Start Interview"}
+              </button>
+
+              <button
+                onClick={() => {
+                  if (
+                    socketRef.current &&
+                    socketRef.current.readyState === WebSocket.OPEN
+                  ) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "end_interview"
+                      })
+                    );
+                  }
+                }}
+                disabled={timerStartedAt === null}
+              >
+                End Interview
+              </button>
+            </div>
+
+            <div>
+              <label>Language: </label>
+              <select
+                value={language}
+                onChange={(event) => {
+                  const newLanguage = event.target.value;
+                  setLanguage(newLanguage);
+
+                  if (
+                    socketRef.current &&
+                    socketRef.current.readyState === WebSocket.OPEN
+                  ) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "language_change",
+                        language: newLanguage
+                      })
+                    );
+                  }
+                }}
+              >
+                {languages.map((languageOption) => (
+                  <option
+                    key={languageOption.value}
+                    value={languageOption.value}
+                  >
+                    {languageOption.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Category: </label>
+              <select
+                value={categoryFilter}
+                onChange={(event) => {
+                  setCategoryFilter(event.target.value);
+                }}
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Difficulty: </label>
+              <select
+                value={difficultyFilter}
+                onChange={(event) =>
+                  setDifficultyFilter(event.target.value)
                 }
-              }}
-              disabled={timerStartedAt !== null}
-            >
-              {timerStartedAt !== null
-                ? "Interview Started"
-                : "Start Interview"}
-            </button>
+              >
+                {difficulties.map((difficulty) => (
+                  <option key={difficulty} value={difficulty}>
+                    {difficulty}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <button
-              onClick={() => {
-                if (socketRef.current &&
-                  socketRef.current.readyState === WebSocket.OPEN) {
-                  socketRef.current.send(
-                    JSON.stringify({
-                      type: "end_interview"
-                    })
+            <div>
+              <label>Question: </label>
+              <select
+                value={selectedQuestion?.id ?? ""}
+                onChange={(event) => {
+                  const question = questions.find(
+                    (question) => question.id === event.target.value
                   );
-                }
-              }}
-              disabled={timerStartedAt === null}
-            >
-              End Interview
-            </button>
 
-            <h3>Select Language</h3>
-            <select
-              value={language}
-              onChange={(event) => {
-                const newLanguage = event.target.value;
+                  setSelectedQuestion(question ?? null);
 
-                setLanguage(newLanguage);
-
-                if (
-                  socketRef.current &&
-                  socketRef.current.readyState === WebSocket.OPEN
-                ) {
-                  socketRef.current.send(
-                    JSON.stringify({
-                      type: "language_change",
-                      language: newLanguage
-                    })
-                  );
-                }
-              }}
-            >
-              {languages.map((languageOption) => (
-                <option
-                  key={languageOption.value}
-                  value={languageOption.value}
-                >
-                  {languageOption.label}
+                  if (
+                    question &&
+                    socketRef.current &&
+                    socketRef.current.readyState === WebSocket.OPEN
+                  ) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "question_change",
+                        question
+                      })
+                    );
+                  }
+                }}
+              >
+                <option value="" hidden>
+                  Select a question
                 </option>
-              ))}
-            </select>
 
-            <h3>Filter by Category</h3>
-
-            <select
-              value={categoryFilter}
-              onChange={(event) => {
-                setCategoryFilter(event.target.value);
-              }}
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-
-            <h3>Filter by Difficulty</h3>
-
-            <select
-              value={difficultyFilter}
-              onChange={(event) =>
-                setDifficultyFilter(event.target.value)
-              }
-            >
-              {difficulties.map((difficulty) => (
-                <option key={difficulty} value={difficulty}>
-                  {difficulty}
-                </option>
-              ))}
-            </select>
-
-            <h3>Select Interview Question</h3>
-
-            <select
-              value={selectedQuestion?.id ?? ""}
-              onChange={(event) => {
-                const question = questions.find(
-                  (question) => question.id === event.target.value
-                );
-
-                setSelectedQuestion(question ?? null);
-
-                if (
-                  question &&
-                  socketRef.current &&
-                  socketRef.current.readyState === WebSocket.OPEN
-                ) {
-                  socketRef.current.send(
-                    JSON.stringify({
-                      type: "question_change",
-                      question
-                    })
-                  );
-                }
-              }}
-            >
-              <option value="" hidden>
-                Select a question
-              </option>
-
-              {filteredQuestions.map((question) => (
-                <option key={question.id} value={question.id}>
-                  {question.title}
-                </option>
-              ))}
-            </select>
-          </>
+                {filteredQuestions.map((question) => (
+                  <option key={question.id} value={question.id}>
+                    {question.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         )}
 
         <div
+          className="interview-workspace"
           style={{
             display: "flex",
             gap: "20px",
@@ -612,25 +633,43 @@ int main() {
         >
           {/* Question Panel */}
           <div
+            className="interview-question"
             style={{
               flex: "0 0 30%",
               height: "fit-content",
               backgroundColor: "#252526",
               color: "white",
-              padding: "20px",
+              padding: "24px",
               borderRadius: "8px",
               boxSizing: "border-box",
               overflowY: "auto",
-              minWidth: 0
+              minWidth: 0,
+              border: "1px solid #3a3a3a"
             }}
           >
             {selectedQuestion ? (
               <>
-                <h2>{selectedQuestion.title}</h2>
+                <h2
+                  style={{
+                    margin: 0,
+                    marginBottom: "16px",
+                    fontSize: "22px"
+                  }}
+                >
+                  {selectedQuestion.title}
+                </h2>
 
-                <p>{selectedQuestion.description}</p>
+                <p
+                  style={{
+                    lineHeight: "1.6",
+                    color: "#d4d4d4",
+                    marginBottom: "20px"
+                  }}
+                >
+                  {selectedQuestion.description}
+                </p>
 
-                <p>
+                <p style={{ marginBottom: "10px" }}>
                   <strong>Difficulty:</strong>{" "}
                   {selectedQuestion.difficulty}
                 </p>
@@ -647,12 +686,16 @@ int main() {
 
           {/* Code Editor */}
           <div
+            className="interview-editor"
             style={{
               flex: "1",
               minWidth: 0,
               height: "460px",
               borderRadius: "8px",
-              overflow: "auto"
+              overflow: "hidden",
+              border: "1px solid #3a3a3a",
+              boxSizing: "border-box",
+              paddingTop: "10px"
             }}
           >
             <Editor
@@ -660,6 +703,17 @@ int main() {
               language={language}
               value={code}
               theme="vs-dark"
+              options={{
+                padding: {
+                  top: 15
+                },
+                minimap: {
+                  enabled: false
+                },
+                fontSize: 14,
+                tabSize: 4,
+                wordWrap: "off"
+              }}
               onChange={(value) => {
                 if (isRemoteUpdate.current) {
                   isRemoteUpdate.current = false;
@@ -682,6 +736,90 @@ int main() {
               }}
             />
           </div>
+
+          {isChatOpen && (
+            <div
+              className="interview-chat"
+              style={{
+                flex: "0 0 25%",
+                height: "460px",
+                backgroundColor: "#252526",
+                color: "white",
+                padding: "15px",
+                overflow: "hidden",
+                borderRadius: "8px",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: 'column',
+                minWidth: 0,
+                border: "1px solid #3a3a3a"
+              }}
+            >
+              <h3 style={{ marginTop: 0 }}>
+                Chat
+              </h3>
+
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  marginBottom: "10px",
+                  padding: "10px",
+                  backgroundColor: "#1e1e1e",
+                  borderRadius: "5px"
+                }}
+              >
+                {receivedMessages.map((msg, index) => (
+                  <div key={index}
+                    style={{
+                      marginBottom: "10px",
+                      padding: "8px 10px",
+                      backgroundColor: "#252526",
+                      borderRadius: "5px"
+                    }}
+                  >
+                    <strong>{msg.sender}:</strong>{" "}
+                    {msg.message}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{
+                display: "flex",
+                gap: "10px",
+                width: "100%",
+                boxSizing: "border-box"
+              }}
+              >
+                <input
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      sendMessage();
+                    }
+                  }}
+                  placeholder="Type a message"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: "9px 10px",
+                    backgroundColor: "#1e1e1e",
+                    color: "white",
+                    border: "1px solid #444",
+                    borderRadius: "5px",
+                    outline: "none",
+                    boxSizing: "border-box"
+                  }}
+                />
+
+                <button
+                  onClick={sendMessage}>
+                  Send
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div
@@ -689,10 +827,11 @@ int main() {
             marginTop: "20px",
             marginLeft: "20px",
             marginRight: "20px",
-            padding: "10px",
-            backgroundColor: "#1e1e1e",
+            padding: "15px",
+            backgroundColor: "#252526",
             color: "white",
             borderRadius: "8px",
+            border: "1px solid #3a3a3a",
             boxSizing: "border-box"
           }}
         >
@@ -733,9 +872,12 @@ int main() {
               onClick={runCode}
               disabled={isRunning}
               style={{
-                padding: "10px 25px",
+                padding: "10px 28px",
                 fontSize: "15px",
-                cursor: isRunning ? "not-allowed" : "pointer"
+                fontWeight: "bold",
+                cursor: isRunning ? "not-allowed" : "pointer",
+                borderRadius: "5px",
+                border: "none"
               }}
             >
               {isRunning ? "Running..." : "▶ Run Code"}
@@ -754,12 +896,15 @@ int main() {
             style={{
               minHeight: "100px",
               margin: 0,
-              padding: "10px",
+              padding: "12px",
               backgroundColor: "#1e1e1e",
               border: "1px solid #444",
               borderRadius: "5px",
               whiteSpace: "pre-wrap",
-              overflow: "auto"
+              overflow: "auto",
+              fontFamily: "monospace",
+              lineHeight: "1.5",
+              boxSizing: "border-box"
             }}
           >
             {output || "Program output will appear here..."}
