@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { starterCode } from "./starterCode";
 
 const languages = [
   { value: "cpp", label: "C++" },
@@ -87,6 +88,7 @@ function Home() {
 
 function InterviewRoom() {
   const socketRef = useRef<WebSocket | null>(null);
+  const editorRef = useRef<any>(null);
   const isRemoteUpdate = useRef(false);
   const { roomId } = useParams();
   const navigate = useNavigate();
@@ -171,10 +173,9 @@ int main() {
         }
 
         if (data.type === "code_change") {
-          console.log("Received code:", data.code);
-
           isRemoteUpdate.current = true;
 
+          editorRef.current?.setValue(data.code);
           setCode(data.code);
         }
 
@@ -296,6 +297,27 @@ int main() {
       );
 
       setMessage("");
+    }
+  };
+
+  const resetCode = () => {
+    const newCode = starterCode[language];
+
+    isRemoteUpdate.current = true;
+
+    editorRef.current?.setValue(newCode);
+    setCode(newCode);
+
+    if (
+      socketRef.current && 
+      socketRef.current.readyState === WebSocket.OPEN
+    ) {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "code_change",
+          code: newCode
+        })
+      );
     }
   };
 
@@ -695,13 +717,36 @@ int main() {
               overflow: "hidden",
               border: "1px solid #3a3a3a",
               boxSizing: "border-box",
-              paddingTop: "10px"
             }}
           >
+            <div 
+              style={{
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 10px",
+                backgroundColor: "#252526",
+                color: "white",
+                boxSizing: "border-box"
+              }}
+            >
+              <span>
+                {languages.find((item) => item.value===language)?.label}
+              </span>
+
+              <button onClick={resetCode}>
+                Reset Code
+              </button>
+            </div>
+
             <Editor
-              height="460px"
+              height="420px"
               language={language}
-              value={code}
+              defaultValue={code}
+              onMount={(editor) => {
+                editorRef.current = editor;
+              }}
               theme="vs-dark"
               options={{
                 padding: {
@@ -712,7 +757,17 @@ int main() {
                 },
                 fontSize: 14,
                 tabSize: 4,
-                wordWrap: "off"
+                wordWrap: "off",
+                automaticLayout: true,
+                scrollBeyondLastLine: false,
+                cursorBlinking: "smooth",
+                cursorSmoothCaretAnimation: "on",
+                bracketPairColorization: {enabled: true},
+                guides: {bracketPairs: true},
+                autoIndent: "full",
+                formatOnPaste: true,
+                formatOnType: false
+
               }}
               onChange={(value) => {
                 if (isRemoteUpdate.current) {
