@@ -32,6 +32,7 @@ const languageIds: Record<Language, number> = {
 type Room = {
   clients: Set<WebSocket>;
   code: Record<Language, string>;
+  initializedLanguages: Set<Language>;
   selectedQuestion: Question | null;
   language: Language;
   timerStartedAt: number | null;
@@ -72,6 +73,7 @@ app.post("/api/rooms", (req, res) => {
       java: "",
       javascript: ""
     },
+    initializedLanguages: new Set<Language>(["cpp"]),
     selectedQuestion: null,
     language: "cpp",
     timerStartedAt: null,
@@ -175,6 +177,7 @@ wss.on("connection", (socket, request) => {
         java: "",
         javascript: ""
       },
+      initializedLanguages: new Set<Language>(["cpp"]),
       selectedQuestion: null,
       language: "cpp",
       timerStartedAt: null,
@@ -329,34 +332,31 @@ wss.on("connection", (socket, request) => {
 
       if (data.type === "language_change") {
         if (role !== "interviewer") {
-          console.log("Candidate attempted to change the language");
+          console.log("Only interviewer can change language.");
           return;
         }
 
-        if (
-          data.language !== "cpp" &&
-          data.language !== "python" &&
-          data.language !== "java" &&
-          data.language !== "javascript"
-        ) {
-          console.log("Invalid language:", data.language);
+        const newLanguage = data.language as Language;
+
+        if (!["cpp", "python", "java", "javascript"].includes(newLanguage)) {
+          console.log("Invalid language.");
           return;
         }
 
-        currentRoom.language = data.language;
+        if (!currentRoom.initializedLanguages.has(newLanguage)) {
+          currentRoom.code[newLanguage] = data.code ?? "";
+          currentRoom.initializedLanguages.add(newLanguage);
+        }
 
-        console.log(
-          "Current language updated:",
-          data.language
-        );
-
+        currentRoom.language = newLanguage;
+        
         currentRoom.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(
               JSON.stringify({
                 type: "language_change",
                 language: currentRoom.language,
-                code: currentRoom.code[currentRoom.language]
+                code: currentRoom.code[newLanguage]
               })
             );
           }

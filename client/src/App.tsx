@@ -105,6 +105,7 @@ using namespace std;
 int main() {
     return 0;
 }`);
+  const [savedCode, setSavedCode] = useState<Record<string, string>>({});
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [copyNotification, setCopyNotification] = useState(false);
   const [output, setOutput] = useState("");
@@ -192,6 +193,7 @@ int main() {
 
           isRemoteUpdate.current = true;
 
+          editorRef.current?.setValue(data.code);
           setCode(data.code);
         }
 
@@ -307,6 +309,11 @@ int main() {
 
     editorRef.current?.setValue(newCode);
     setCode(newCode);
+
+    setSavedCode((prev) => ({
+      ...prev,
+      [language]: newCode
+    }));
 
     if (
       socketRef.current && 
@@ -545,6 +552,7 @@ int main() {
                 value={language}
                 onChange={(event) => {
                   const newLanguage = event.target.value;
+
                   setLanguage(newLanguage);
 
                   if (
@@ -554,7 +562,8 @@ int main() {
                     socketRef.current.send(
                       JSON.stringify({
                         type: "language_change",
-                        language: newLanguage
+                        language: newLanguage,
+                        code: savedCode[newLanguage] ?? starterCode[newLanguage]
                       })
                     );
                   }
@@ -775,7 +784,13 @@ int main() {
                   return;
                 }
 
-                setCode(value ?? "");
+                const newCode = value ?? ""
+
+                setCode(newCode);
+
+                setSavedCode((prev) => ({
+                  ...prev, [language]: newCode
+                }));
 
                 if (
                   socketRef.current &&
@@ -784,7 +799,7 @@ int main() {
                   socketRef.current.send(
                     JSON.stringify({
                       type: "code_change",
-                      code: value ?? ""
+                      code: newCode
                     })
                   );
                 }
