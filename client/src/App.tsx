@@ -113,6 +113,7 @@ int main() {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerStartedAt, setTimeStartedAt] = useState<number | null>(null);
+  const [interviewEnded, setInterviewEnded] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] =
     useState<Question | null>(null);
@@ -161,6 +162,7 @@ int main() {
 
         if (data.type === "interview_ended") {
           setTimeStartedAt(null);
+          setInterviewEnded(true);
         }
 
         if (data.type === "user_joined") {
@@ -316,7 +318,7 @@ int main() {
     }));
 
     if (
-      socketRef.current && 
+      socketRef.current &&
       socketRef.current.readyState === WebSocket.OPEN
     ) {
       socketRef.current.send(
@@ -429,7 +431,7 @@ int main() {
             alignItems: "center",
             gap: "8px",
             whiteSpace: "nowrap"
-          }}  
+          }}
         >
           Room: {roomId}
           <button
@@ -520,7 +522,7 @@ int main() {
                     );
                   }
                 }}
-                disabled={timerStartedAt !== null}
+                disabled={timerStartedAt !== null || interviewEnded}
               >
                 {timerStartedAt !== null
                   ? "Interview Started"
@@ -543,6 +545,24 @@ int main() {
                 disabled={timerStartedAt === null}
               >
                 End Interview
+              </button>
+
+              <button
+                onClick={() => {
+                  if (
+                    socketRef.current &&
+                    socketRef.current.readyState === WebSocket.OPEN
+                  ) {
+                    socketRef.current.send(
+                      JSON.stringify({
+                        type: "reset_timer"
+                      })
+                    );
+                  }
+                }}
+                disabled={timerStartedAt === null}
+              >
+                Reset Timer
               </button>
             </div>
 
@@ -711,7 +731,11 @@ int main() {
                 </p>
               </>
             ) : (
-              <p>Select an interview question to begin.</p>
+              <p>
+                {role === "interviewer"
+                  ? "Select an interview question to begin."
+                  : "Waiting for interviewer to select a question..."}
+              </p>
             )}
           </div>
 
@@ -728,7 +752,7 @@ int main() {
               boxSizing: "border-box",
             }}
           >
-            <div 
+            <div
               style={{
                 height: "40px",
                 display: "flex",
@@ -741,7 +765,7 @@ int main() {
               }}
             >
               <span>
-                {languages.find((item) => item.value===language)?.label}
+                {languages.find((item) => item.value === language)?.label}
               </span>
 
               <button onClick={resetCode}>
@@ -771,8 +795,8 @@ int main() {
                 scrollBeyondLastLine: false,
                 cursorBlinking: "smooth",
                 cursorSmoothCaretAnimation: "on",
-                bracketPairColorization: {enabled: true},
-                guides: {bracketPairs: true},
+                bracketPairColorization: { enabled: true },
+                guides: { bracketPairs: true },
                 autoIndent: "full",
                 formatOnPaste: true,
                 formatOnType: false

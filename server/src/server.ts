@@ -307,6 +307,28 @@ wss.on("connection", (socket, request) => {
         return;
       }
 
+      if (data.type === "reset_timer") {
+        if (role !== "interviewer") {
+          console.log("Candidate attempted to reset the timer");
+          return;
+        }
+
+        currentRoom.timerStartedAt = Date.now();
+
+        currentRoom.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(
+              JSON.stringify({
+                type: "timer_sync",
+                timerStartedAt: currentRoom.timerStartedAt
+              })
+            );
+          }
+        });
+
+        return;
+      }
+
       if (data.type === "end_interview") {
         if (role !== "interviewer") {
           console.log("Candidate attempted to end the interview");
@@ -349,7 +371,6 @@ wss.on("connection", (socket, request) => {
         }
 
         currentRoom.language = newLanguage;
-        
         currentRoom.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(
