@@ -772,6 +772,22 @@ int main() {
                 Reset Code
               </button>
             </div>
+            {interviewEnded && (
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#9ca3af",
+                  padding: "6px 10px",
+                  backgroundColor: "#1f2937",
+                  borderRadius: "4px",
+                  marginTop: "10px",
+                  marginBottom: "6px",
+                  display: "inline-block"
+                }}
+              >
+                🔒 Interview ended — code editing is disabled.
+              </div>
+            )}
 
             <Editor
               height="420px"
@@ -799,8 +815,9 @@ int main() {
                 guides: { bracketPairs: true },
                 autoIndent: "full",
                 formatOnPaste: true,
-                formatOnType: false
-
+                formatOnType: false,
+                readOnly: interviewEnded,
+                domReadOnly: interviewEnded,
               }}
               onChange={(value) => {
                 if (isRemoteUpdate.current) {
