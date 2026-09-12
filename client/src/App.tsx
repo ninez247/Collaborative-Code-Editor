@@ -133,6 +133,9 @@ int main() {
     )
   ];
 
+  const [interviewerConnected, setInterviewerConnected] = useState(false);
+  const [candidateConnected, setCandidateConnected] = useState(false);
+
   useEffect(() => {
     if (!roomId) {
       return;
@@ -162,6 +165,7 @@ int main() {
 
         if (data.type === "interview_ended") {
           setTimeStartedAt(null);
+          setElapsedTime(data.elapsedTime ?? 0);
           setInterviewEnded(true);
         }
 
@@ -213,6 +217,11 @@ int main() {
           alert(data.message);
           navigate("/");
           return;
+        }
+
+        if (data.type === "participant_status") {
+          setInterviewerConnected(data.interviewerConnected);
+          setCandidateConnected(data.candidateConnected);
         }
 
       } catch {
@@ -408,62 +417,142 @@ int main() {
       </style>
       <div
         style={{
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 20px",
           backgroundColor: "#252526",
           color: "white",
-          gap: "24px",
-          borderBottom: "1px solid #3a3a3a",
-          boxSizing: "border-box"
+          borderBottom: "1px solid #3a3a3a"
         }}
       >
-        <strong>CodeTogether</strong>
-
-        <span>
-          WebSocket: {connectionStatus}
-        </span>
-
-        <span
+        {/* Top header row */}
+        <div
           style={{
+            height: "56px",
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            whiteSpace: "nowrap"
+            padding: "0 20px",
+            gap: "24px",
+            boxSizing: "border-box"
           }}
         >
-          Room: {roomId}
-          <button
-            onClick={() => {
-              if (roomId) {
-                navigator.clipboard.writeText(roomId);
+          <strong
+            style={{
+              fontSize: "18px"
+            }}
+          >
+            CodeTogether
+          </strong>
+
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            Room: {roomId}
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/room/${roomId}`
+                );
+
                 setCopyNotification(true);
 
                 setTimeout(() => {
                   setCopyNotification(false);
-                }, 2000);
-              }
+                }, 1500);
+              }}
+              style={{
+                fontSize: "12px",
+                padding: "4px 8px"
+              }}
+            >
+              Copy
+            </button>
+
+            {copyNotification && (
+              <span
+                style={{
+                  fontSize: "12px",
+                  color: "#4ade80"
+                }}
+              >
+                Copied!
+              </span>
+            )}
+          </span>
+
+          <span
+            style={{
+              marginLeft: "auto",
+              fontWeight: "bold",
+              fontSize: "18px"
             }}
-            style={{ flexShrink: 0 }}
           >
-            Copy
-          </button>
-        </span>
+            ⏱ {formattedTime}
+          </span>
+        </div>
 
-        <span>
-          Role: {role}
-        </span>
-
-        <span
+        {/* Status row */}
+        <div
           style={{
-            marginLeft: "auto",
-            fontWeight: "bold",
-            fontSize: "18px"
+            minHeight: "42px",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 20px",
+            gap: "28px",
+            borderTop: "1px solid #3a3a3a",
+            boxSizing: "border-box",
+            fontSize: "13px",
+            color: "#d1d5db"
           }}
         >
-          ⏱ {formattedTime}
-        </span>
+          <span>
+            Role:{" "}
+            <strong style={{ color: "white" }}>
+              {role}
+            </strong>
+          </span>
+
+          <span>
+            WebSocket:{" "}
+            <strong style={{ color: "white" }}>
+              {connectionStatus}
+            </strong>
+          </span>
+
+          <span>
+            Interviewer{" "}
+            <span
+              style={{
+                color: interviewerConnected
+                  ? "#4ade80"
+                  : "#f87171"
+              }}
+            >
+              ●
+            </span>{" "}
+            {interviewerConnected
+              ? "Connected"
+              : "Disconnected"}
+          </span>
+
+          <span>
+            Candidate{" "}
+            <span
+              style={{
+                color: candidateConnected
+                  ? "#4ade80"
+                  : "#f87171"
+              }}
+            >
+              ●
+            </span>{" "}
+            {candidateConnected
+              ? "Connected"
+              : "Disconnected"}
+          </span>
+        </div>
       </div>
 
       <div style={{
@@ -675,8 +764,9 @@ int main() {
           className="interview-workspace"
           style={{
             display: "flex",
-            gap: "20px",
-            padding: "20px",
+            gap: "10px",
+            padding: "10px",
+            marginTop: "20px",
             width: "100%",
             boxSizing: "border-box",
             alignItems: "stretch"
@@ -686,7 +776,7 @@ int main() {
           <div
             className="interview-question"
             style={{
-              flex: "0 0 30%",
+              flex: "0 0 25%",
               height: "fit-content",
               backgroundColor: "#252526",
               color: "white",

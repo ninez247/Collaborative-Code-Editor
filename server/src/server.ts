@@ -6,6 +6,7 @@ import crypto from "crypto";
 import "dotenv/config";
 import { runCode } from "./services/codeExecution";
 import questions from "./questions.json";
+import { captureRejectionSymbol } from "events";
 
 function generateRoomId(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -31,11 +32,13 @@ const languageIds: Record<Language, number> = {
 
 type Room = {
   clients: Set<WebSocket>;
+  clientRoles: Map<WebSocket, "interviewer" | "candidate">;
   code: Record<Language, string>;
   initializedLanguages: Set<Language>;
   selectedQuestion: Question | null;
   language: Language;
   timerStartedAt: number | null;
+  elapsedTime: number;
   interviewEnded: boolean;
 };
 
@@ -67,6 +70,7 @@ app.post("/api/rooms", (req, res) => {
 
   rooms.set(roomId, {
     clients: new Set(),
+    clientRoles: new Map(),
     code: {
       cpp: DEFAULT_CODE,
       python: "",
@@ -77,6 +81,7 @@ app.post("/api/rooms", (req, res) => {
     selectedQuestion: null,
     language: "cpp",
     timerStartedAt: null,
+    elapsedTime: 0,
     interviewEnded: false
   });
 
@@ -135,6 +140,28 @@ const server = createServer(app);
 
 const wss = new WebSocketServer({ server });
 
+function broadcastParticipantStatus(room: Room) {
+  const interviewerConnected = Array.from(room.clientRoles.values()).includes(
+    "interviewer"
+  );
+
+  const candidateConnected = Array.from(room.clientRoles.values()).includes(
+    "candidate"
+  );
+
+  room.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          type: "participant_status",
+          interviewerConnected,
+          candidateConnected
+        })
+      );
+    }
+  });
+}
+
 wss.on("connection", (socket, request) => {
   const url = new URL(request.url ?? "", "http://localhost:3000");
 
@@ -171,6 +198,7 @@ wss.on("connection", (socket, request) => {
 
     rooms.set(roomId, {
       clients: new Set(),
+      clientRoles: new Map(),
       code: {
         cpp: DEFAULT_CODE,
         python: "",
@@ -181,13 +209,21 @@ wss.on("connection", (socket, request) => {
       selectedQuestion: null,
       language: "cpp",
       timerStartedAt: null,
+      elapsedTime: 0,
       interviewEnded: false
     });
   }
 
   const room = rooms.get(roomId)!;
 
-  if (room.timerStartedAt !== null) {
+  if (room.interviewEnded) {
+    socket.send(
+      JSON.stringify({
+        type: "interview_ended",
+        elapsedTime: room.elapsedTime
+      })
+    );
+  } else if (room.timerStartedAt !== null) {
     socket.send(
       JSON.stringify({
         type: "timer_sync",
@@ -197,6 +233,8 @@ wss.on("connection", (socket, request) => {
   }
 
   room.clients.add(socket);
+  room.clientRoles.set(socket, role);
+  broadcastParticipantStatus(room);
 
   socket.send(
     JSON.stringify({
@@ -288,6 +326,8 @@ wss.on("connection", (socket, request) => {
         }
 
         currentRoom.timerStartedAt = Date.now();
+        currentRoom.elapsedTime = 0;
+        currentRoom.interviewEnded = false;
 
         console.log(
           `Interview started in room ${roomId}`
@@ -335,6 +375,12 @@ wss.on("connection", (socket, request) => {
           return;
         }
 
+        if (currentRoom.timerStartedAt !== null) {
+          currentRoom.elapsedTime = Math.floor(
+            (Date.now() - currentRoom.timerStartedAt) / 1000
+          );
+        }
+
         currentRoom.interviewEnded = true;
 
         console.log(`Interviwe ended in room ${roomId}`);
@@ -343,7 +389,8 @@ wss.on("connection", (socket, request) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(
               JSON.stringify({
-                type: "interview_ended"
+                type: "interview_ended",
+                elapsedTime: currentRoom.elapsedTime
               })
             );
           }
@@ -404,6 +451,8 @@ wss.on("connection", (socket, request) => {
     }
 
     currentRoom.clients.delete(socket);
+    currentRoom.clientRoles.delete(socket);
+    broadcastParticipantStatus(currentRoom);
 
     console.log(`User left room ${roomId}`);
 
